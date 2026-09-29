@@ -13,6 +13,7 @@ from pathlib import Path
 import re
 import tarfile
 import tempfile
+import tomllib
 import unittest
 
 import build_deb
@@ -88,6 +89,15 @@ class RecipeVersionTests(unittest.TestCase):
 
         assert newest is not None
         self.assertEqual(newest.group(1), build_deb.cargo_version())
+
+    def test_arch_recipe_enforces_native_build_minimums(self) -> None:
+        text = PKGBUILD.read_text(encoding='utf-8')
+        manifest = tomllib.loads(package_data.CARGO_MANIFEST.read_text(encoding='utf-8'))
+        features = manifest['workspace']['dependencies']['gtk']['features']
+        minimum = max(tuple(map(int, feature[1:].split('_')))
+                      for feature in features if re.fullmatch(r'v\d+_\d+', feature))
+
+        self.assertIn(f"'gtk4>={'.'.join(map(str, minimum))}'", text)
 
 
 class RpmFileListTests(unittest.TestCase):

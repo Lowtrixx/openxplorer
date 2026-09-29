@@ -160,42 +160,133 @@ function normaliseAddress(text,base){
 let seq=0;const pending=new Map();
 window.__nativeResolve=(id,result,error)=>{const p=pending.get(id);if(!p)return;pending.delete(id);clearTimeout(p.timer);if(error){const e=Error(error.message||String(error));e.code=error.code;p.reject(e);}else p.resolve(result);};
 window.__nativeEvent=(name,data)=>{
-  if(name==='fileDragRequest')void beginNativeFileDrag(data.uri);
-  if(name==='fileDragStarted')markNativeFileDrag(data);
-  if(name==='fileDragFinished')finishNativeFileDrag();
-  if(name==='fileDrop')void receiveFileDrop(data);
-  if(name==='fileDropHint')showFileDropHint(data);
-  if(name==='restoreTab')void restoreTransferredTab(data);
-  if(name==='tabDragRequest')void beginNativeTabDrag(data.id);
-  if(name==='tabDetachRequested')void detachTab(data.id);
-  if(name==='tabReceive')void receiveTransferredTab(data);
-  if(name==='tabTransferDone')finishTabTransfer(data);
-  if(name==='tabTransferSettled')settleIncomingTab(data);
-  if(name==='tabReorder')reorderTab(data.id,data.beforeId);
-  if(name==='tabDropHint')showTabDropHint(data);
-  if(name==='tabTearOutHint'){const h=$('tab-drag-hint');h.hidden=!data.show;h.textContent='Release to open this tab in a new window';h.style.left=Math.max(12,Math.min(data.x||40,innerWidth-360))+'px';h.style.top=Math.max(56,Math.min(data.y||90,innerHeight-65))+'px';}
-
-  if(name==='fileManagerRequest')void handleFileManagerRequest(data);
-  if(name==='showWindows')void windowsMenu();
-  if(name==='showSettings')void settingsDialog();
-  if(name==='integrationChanged')void updateDefaultStatus();
-  if(name==='folderSizeProgress')receiveFolderSize(data);
-  if(name==='auth')receiveAuth(data);
-  if(name==='authDismiss')dismissAuth(data.id);
-  if(name==='mouseNavigate'&&!activeAuth&&$('modal-layer').hidden)goHistory(data.delta);
-  if(name==='openLocations'){const uris=data.uris||[];if(uris.length)void openIncoming(uris);}
-  if(name==='clipboardChanged')void refreshClipboard();
-  if(name==='cacheChanged'){clearTimeout(state.cacheTimer);state.cacheTimer=setTimeout(async()=>{await refreshCacheStatus();if(state.query)void runSearch();},200);}
-  if(name==='entries'){const t=state.tabs.find(t=>t.loadToken===data.token);if(t){if(data.reset)t.entries=[];t.entries.push(...data.entries);t.dirty=true;if(t===active())scheduleListing();}}
-  if(name==='textSizeChanged')applyTextSize(data.textSize);
-  if(name==='theme'){if(state.env)state.env.systemDark=!!data.systemDark;applyTheme(state.theme,false);}
-  if(name==='transfer')updateTransfer(data);
-  if(name==='updateProgress'&&state.updateInstalling&&$('update-status'))$('update-status').textContent=data.message||'Installing update…';
-  if(name==='serverSigningOut'){state.signedOutHosts.add(data.host);state.sessionNetwork=(state.sessionNetwork||[]).filter(s=>new URL(s.uri).hostname!==data.host);}
-  if(name==='changed'){const t=active();if(t&&t.uri===data.uri&&!state.operation&&!state.query&&!state.signedOutHosts.has((()=>{try{return new URL(data.uri).hostname;}catch{return '';}})()))load(t,false);}
-  if(name==='mounts'||name==='environmentChanged')refreshEnvironment();
-  if(name==='close-request')askClose();
-  if(name==='notice')toast(data.message);
+  switch(name){
+    case'fileDragRequest':
+      void beginNativeFileDrag(data.uri);
+      break;
+    case'fileDragStarted':
+      markNativeFileDrag(data);
+      break;
+    case'fileDragFinished':
+      finishNativeFileDrag();
+      break;
+    case'fileDrop':
+      void receiveFileDrop(data);
+      break;
+    case'fileDropHint':
+      showFileDropHint(data);
+      break;
+    case'restoreTab':
+      void restoreTransferredTab(data);
+      break;
+    case'tabDragRequest':
+      void beginNativeTabDrag(data.id);
+      break;
+    case'tabDetachRequested':
+      void detachTab(data.id);
+      break;
+    case'tabReceive':
+      void receiveTransferredTab(data);
+      break;
+    case'tabTransferDone':
+      finishTabTransfer(data);
+      break;
+    case'tabTransferSettled':
+      settleIncomingTab(data);
+      break;
+    case'tabReorder':
+      reorderTab(data.id,data.beforeId);
+      break;
+    case'tabDropHint':
+      showTabDropHint(data);
+      break;
+    case'tabTearOutHint':{
+      const h=$('tab-drag-hint');
+      h.hidden=!data.show;
+      h.textContent='Release to open this tab in a new window';
+      h.style.left=Math.max(12,Math.min(data.x||40,innerWidth-360))+'px';
+      h.style.top=Math.max(56,Math.min(data.y||90,innerHeight-65))+'px';
+      break;
+    }
+    case'fileManagerRequest':
+      void handleFileManagerRequest(data);
+      break;
+    case'showWindows':
+      void windowsMenu();
+      break;
+    case'showSettings':
+      void settingsDialog();
+      break;
+    case'integrationChanged':
+      void updateDefaultStatus();
+      break;
+    case'folderSizeProgress':
+      receiveFolderSize(data);
+      break;
+    case'auth':
+      receiveAuth(data);
+      break;
+    case'authDismiss':
+      dismissAuth(data.id);
+      break;
+    case'mouseNavigate':
+      if(!activeAuth&&$('modal-layer').hidden)goHistory(data.delta);
+      break;
+    case'openLocations':{
+      const uris=data.uris||[];
+      if(uris.length)void openIncoming(uris);
+      break;
+    }
+    case'clipboardChanged':
+      void refreshClipboard();
+      break;
+    case'cacheChanged':
+      clearTimeout(state.cacheTimer);
+      state.cacheTimer=setTimeout(async()=>{await refreshCacheStatus();if(state.query)void runSearch();},200);
+      break;
+    case'entries':{
+      const t=state.tabs.find(t=>t.loadToken===data.token);
+      if(t){
+        if(data.reset)t.entries=[];
+        t.entries.push(...data.entries);
+        t.dirty=true;
+        if(t===active())scheduleListing();
+      }
+      break;
+    }
+    case'textSizeChanged':
+      applyTextSize(data.textSize);
+      break;
+    case'theme':
+      if(state.env)state.env.systemDark=!!data.systemDark;
+      applyTheme(state.theme,false);
+      break;
+    case'transfer':
+      updateTransfer(data);
+      break;
+    case'updateProgress':
+      if(state.updateInstalling&&$('update-status'))$('update-status').textContent=data.message||'Installing update…';
+      break;
+    case'serverSigningOut':
+      state.signedOutHosts.add(data.host);
+      state.sessionNetwork=(state.sessionNetwork||[]).filter(s=>new URL(s.uri).hostname!==data.host);
+      break;
+    case'changed':{
+      const t=active();
+      if(t&&t.uri===data.uri&&!state.operation&&!state.query&&!state.signedOutHosts.has((()=>{try{return new URL(data.uri).hostname;}catch{return '';}})()))load(t,false);
+      break;
+    }
+    case'mounts':
+    case'environmentChanged':
+      refreshEnvironment();
+      break;
+    case'close-request':
+      askClose();
+      break;
+    case'notice':
+      toast(data.message);
+      break;
+  }
 };
 async function call(method,args={}){
   if(!native)return demo.call(method,args);
