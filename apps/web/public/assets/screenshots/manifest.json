@@ -14,13 +14,13 @@
     "snapshot-tab.png"
   ],
   "sha256": {
-    "cached-search.png": "34c71020a875fdd25b2aa9f74b87379de39440f356ea49f7dcdb8396bf40bb48",
-    "explorer-dark.png": "d5e9c7302d4705d7c7dc8932b744aad10d7fe17d7a6ec0f580f206f7b2fc4684",
-    "explorer-light.png": "e82668755354c05ef096c92c7cb199a5468e01cc16a8597a8d920a3fb4fbf8a6",
-    "network-path.png": "e963527ee0af11f4c70effebfedae508483124ac22047886a4c014dce23a7c05",
-    "pinned-sidebar.png": "e56f868e9d83f761ec748784232694e9279fc06b3c5242f198a77c93b271ca67",
-    "previous-versions.png": "9b4d1a617bfc45ddaf848896a5785fe7542d4e6a59cec068711586028def269f",
-    "snapshot-tab.png": "9323fd46a252be08338b671d4aa275b2ddd9d5d09b145e54e5a2dc08aaac966f"
+    "cached-search.png": "54014fdc8c2853229a9cfa22d13c0481083446cb67d5652ead4bf8806b08fafb",
+    "explorer-dark.png": "9784938b1bb02ea3860f3eaadcca17f2201f91285ddd7acaea29089875dda7b5",
+    "explorer-light.png": "1470705faec962e5e16ffa54af55686cda27ca7ba774695e8fe2075ca347edf1",
+    "network-path.png": "68d48d6b58eed5a4dc096c117714b5bbeb83c12e1a3999eb3fc097f7ca6d84e1",
+    "pinned-sidebar.png": "474cb7b4e8ac47834bff5f79891a8869355e7d107c4bafe7b8b50ba9138350c6",
+    "previous-versions.png": "b4c849777f235ae04349e98fbc575f3da473268db61a2f0cd20816302cdc1246",
+    "snapshot-tab.png": "5a6e581043abbeb1f5ca87f1382894c246c62c29d2f051bbaffce70313a0f19e"
   },
-  "fixtureSourceSha256": "6af4c55b34135685abb2e41b318d54cbf97353189bd02f0a3bfc483cf5d1861e"
+  "fixtureSourceSha256": "767c2250fa77db10b1fc7943a656cc575ea902229c188f3c1d12d703e74bce03"
 }
