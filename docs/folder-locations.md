@@ -4,7 +4,7 @@ A familiar Location tab, with Linux filesystem semantics.
 
 ## Set a standard folder location
 
-Right-click Downloads or Documents → Properties → Location. Choose an existing writable directory, check the destination, and confirm before applying. The previous user-directory setting is backed up. No existing files are moved, merged or deleted.
+Right-click Downloads or Documents → Properties → Location. Choose an existing writable directory and click Apply. Validation runs automatically before the change. The previous user-directory setting is backed up. No existing files are moved, merged or deleted.
 
 The native Location tab needs xdg-user-dirs and supports existing local folders and persistent mounted SMB destinations. Flatpak cannot change host standard-folder settings. The native tab does not include the mount setup assistant or the Brave follow-up; those remain separate settings and tools.
 

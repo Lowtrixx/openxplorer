@@ -241,6 +241,7 @@ impl BrowserWindow {
         let frame = DialogFrame::new(&title, view.dialog_width());
         frame.add_css_class("properties-dialog");
         frame.body().append(&view);
+        view.add_location_apply(&frame);
         frame.add_closing_button("Close", ButtonStyle::Accent, || {});
         frame.connect_closed(glib::clone!(
             #[weak(rename_to = window)]
@@ -422,4 +423,48 @@ fn tuple_action(
             }
         })
         .build()
+}
+
+#[cfg(test)]
+mod location_footer_tests {
+    use super::*;
+    use crate::test_support::harness::{descendants, Fixture, TestWindow};
+
+    #[gtk::test]
+    fn location_apply_matches_close_and_only_appears_on_location_tab() {
+        let fixture = Fixture::standard();
+        let test = TestWindow::open(&fixture.uri());
+        test.window.show_properties(
+            PropertiesTarget {
+                uri: fixture.uri_of("Documents"),
+                title: "Documents".into(),
+                kind: ItemKind::Folder,
+                known_folder: Some(ox_core::places::KnownFolder::Documents),
+            },
+            PropertiesTab::Location,
+        );
+        let frame = test.window.dialog_layer().shown().unwrap();
+        assert_eq!(frame.button_labels(), ["Apply", "Close"]);
+        let buttons = descendants::<gtk::Button>(&frame);
+        let apply = buttons
+            .iter()
+            .find(|b| b.label().as_deref() == Some("Apply"))
+            .unwrap();
+        let close = buttons
+            .iter()
+            .find(|b| b.label().as_deref() == Some("Close"))
+            .unwrap();
+        assert_eq!(apply.parent(), close.parent());
+        assert!(apply.has_css_class(ButtonStyle::Accent.css_class()));
+        assert!(close.has_css_class(ButtonStyle::Accent.css_class()));
+        assert!(apply.is_visible());
+        let view = descendants::<PropertiesView>(&frame).pop().unwrap();
+        view.select_tab(PropertiesTab::General);
+        assert!(!apply.is_visible());
+        assert!(close.is_visible());
+        view.select_tab(PropertiesTab::Location);
+        assert!(apply.is_visible());
+        close.emit_clicked();
+        assert!(test.window.dialog_layer().shown().is_none());
+    }
 }
