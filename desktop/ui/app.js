@@ -301,7 +301,7 @@ async function call(method,args={}){
 }
 function fire(method,args={}){call(method,args).catch(e=>toast(e.message));}
 
-const state={folderSizes:new Map(),trashSupport:new Map(),sizeRun:null,modalOwner:null,settingsOrigin:null,tabs:[],activeId:null,env:null,selection:new Set(),clipboard:null,view:'details',details:true,showHidden:false,sort:'name',descending:false,operation:null,anchor:-1,query:'',renderQueued:false,modalResolve:null,filterCache:null,filterVersion:0,theme:window.__OPENXPLORER_FIRST_THEME__||'system',drag:null,pinBusy:false,ready:false,searchGeneration:0,searchResults:null,searchScope:'folder',searchBusy:false,cache:{roots:[]},signedOutHosts:new Set(),pointerPending:null,suppressClickUntil:0,discovery:{servers:[],busy:false,started:false,generation:0}};
+const state={folderSizes:new Map(),trashSupport:new Map(),sizeRun:null,modalOwner:null,settingsOrigin:null,tabs:[],activeId:null,env:null,selection:new Set(),clipboard:null,view:'details',details:true,showHidden:false,sort:'name',descending:false,operation:null,anchor:-1,query:'',renderQueued:false,modalResolve:null,filterCache:null,filterVersion:0,theme:window.__OPENXPLORER_FIRST_THEME__||'system',drag:null,pinBusy:false,ready:false,searchGeneration:0,searchResults:null,searchScope:'folder',searchBusy:false,cache:{roots:[]},cacheStatusGeneration:0,signedOutHosts:new Set(),pointerPending:null,suppressClickUntil:0,discovery:{servers:[],busy:false,started:false,generation:0}};
 
 // 0.5.1: typing in the file pane selects a name; it never starts a search.
 const typeSelect = new window.OpenXplorerTypeSelect.Controller();
@@ -591,10 +591,10 @@ async function trash(){const s=selected();if(!s.length||state.operation||s.some(
   if(!ok)return;
   if(toTrash.length)await runOperation('trash',{uris:toTrash});
   if(toDelete.length)await runOperation('delete',{uris:toDelete});}
-async function runOperation(mode,args){const token='op-'+(++seq);state.operation=token;updateToolbar();$('transfer').hidden=false;updateTransfer({token,label:mode==='trash'?'Moving to Trash…':mode==='delete'?'Deleting items…':mode==='move'?'Moving items…':'Preparing copy…',fraction:0});
+async function runOperation(mode,args){const operationTab=active(),token='op-'+(++seq);state.operation=token;updateToolbar();$('transfer').hidden=false;updateTransfer({token,label:mode==='trash'?'Moving to Trash…':mode==='delete'?'Deleting items…':mode==='move'?'Moving items…':'Preparing copy…',fraction:0});
   try{const r=await call('operate',{...args,mode,token});if(mode==='move'&&r.done?.length){state.clipboard=await call('clipboardConsume',{token:args.clipboardToken,done:r.done});}
     if(r.errors?.length||r.cancelled||r.skipped?.length){const report=[`${r.done?.length||0} completed.`,r.skipped?.length?`${r.skipped.length} skipped (name already exists).`:'',r.cancelled?'Cancelled. Completed items remain in place.':'',...(r.errors||[])].filter(Boolean).join('\n');await showMessage('Operation result',report);}else toast(`${r.done?.length||0} item(s) ${mode==='copy'?'copied':mode==='move'?'moved':mode==='delete'?'permanently deleted':'sent to Trash'}.`);
-  }catch(e){showMessage('Operation stopped',e.message);}finally{state.operation=null;$('transfer').hidden=true;state.selection.clear();await load(active(),false);updateToolbar();}}
+  }catch(e){showMessage('Operation stopped',e.message);}finally{state.operation=null;$('transfer').hidden=true;if(active()===operationTab)state.selection.clear();if(state.tabs.includes(operationTab))await load(operationTab,false);updateToolbar();}}
 function updateTransfer(data){if(data.token&&state.operation!==data.token)return;$('transfer-label').textContent=data.label||'Working…';$('transfer-progress').style.width=(Math.max(0,Math.min(1,data.fraction||0))*100)+'%';}
 function sameLocation(a,b){return typeof a==='string'&&typeof b==='string'&&a.replace(/\/$/,'')===b.replace(/\/$/,'');}
 function isSmbServer(uri){try{const u=new URL(uri);return u.protocol==='smb:'&&!u.pathname.replaceAll('/','');}catch{return false;}}
@@ -824,7 +824,7 @@ function resetSearch(){resetTypeSelect();if(state.searchToken)fire('cancel',{tok
 function cacheRootsFor(uri){return (state.cache?.roots||[]).filter(r=>r.enabled&&(sameLocation(uri,r.uri)||uri?.startsWith(r.uri.replace(/\/$/,'')+'/')||r.uri.startsWith(uri?.replace(/\/$/,'')+'/')));}
 function cacheCovers(uri){return cacheRootsFor(uri).some(r=>sameLocation(uri,r.uri)||uri.startsWith(r.uri.replace(/\/$/,'')+'/'));}
 function currentFolderMatches(tab,text){const terms=text.toLocaleLowerCase().split(/\s+/);return tab.entries.filter(e=>(state.showHidden||!e.hidden)&&terms.every(term=>(e.name+' '+displayUri(tab.uri)).toLocaleLowerCase().includes(term)));}
-async function refreshCacheStatus(){try{state.cache=await call('cacheStatus');renderSearchInfo();if($('settings-cache-list'))renderSettingsCache();return state.cache;}catch(e){state.cacheError=e.message;return null;}}
+async function refreshCacheStatus(){const generation=++state.cacheStatusGeneration;try{const cache=await call('cacheStatus');if(generation!==state.cacheStatusGeneration)return state.cache;state.cache=cache;renderSearchInfo();if($('settings-cache-list'))renderSettingsCache();return state.cache;}catch(e){if(generation===state.cacheStatusGeneration)state.cacheError=e.message;return null;}}
 function queueSearch(){resetSearch();state.query=$('search').value;state.selection.clear();$('file-scroll').scrollTop=0;state.searchBusy=!!state.query;state.searchTimer=setTimeout(runSearch,120);renderSearchInfo();renderRows();updateStatus();updateToolbar();}
 async function runSearch(){
   const text=state.query.trim(),t=active();if(!t)return;
@@ -2017,7 +2017,7 @@ function applyPendingTabRestore(t){
   const value=t.pendingRestore;delete t.pendingRestore;state.selection=new Set(value.selection);state.filterCache=null;renderRows();$('file-scroll').scrollTop=value.scroll;updateToolbar();updateStatus();
 }
 async function windowsMenu(){
-  const data=await call('windows');
+  let data;try{data=await call('windows');}catch(e){toast(e.message);return;}
   const b=$('windows-button').getBoundingClientRect();
   openMenu(Math.min(b.left,innerWidth-300),b.bottom+5,[
     ...data.map(w=>({label:w.title||'OpenXplorer',icon:w.active?'check':'desktop',fn:()=>call('focusWindow',{id:w.id})})),
