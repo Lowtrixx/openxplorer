@@ -126,8 +126,8 @@ impl KnownFolder {
 /// `user-dirs.dirs` file. Creating it reads nothing.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FolderLocations {
-    home: PathBuf,
-    user_dirs_file: PathBuf,
+    pub(super) home: PathBuf,
+    pub(super) user_dirs_file: PathBuf,
 }
 
 impl FolderLocations {
@@ -170,7 +170,7 @@ impl FolderLocations {
     }
 
     /// Every standard folder: where `configured` puts it, else `~/<Label>`.
-    fn paths_with(&self, mut configured: UserDirs) -> KnownFolderPaths {
+    pub(super) fn paths_with(&self, mut configured: UserDirs) -> KnownFolderPaths {
         let mut paths = HashMap::new();
         for folder in KnownFolder::ALL {
             let default_path = self.home.join(folder.label());

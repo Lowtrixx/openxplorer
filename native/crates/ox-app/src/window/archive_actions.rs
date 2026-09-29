@@ -239,6 +239,9 @@ impl BrowserWindow {
     /// shows the result in `origin` if it is still in front, else in a new
     /// tab, or lists the destination again (ARC-011).
     fn extract_archive(&self, archive: &ArchiveTarget, choice: ExtractionChoice, origin: Option<TabId>) {
+        if !self.may_start_archive_operation() {
+            return;
+        }
         let cancel = Cancellation::new();
         self.operation_panel().start(PREPARING, cancel.clone());
         self.update_archive_actions();

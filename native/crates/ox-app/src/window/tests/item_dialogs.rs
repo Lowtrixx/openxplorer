@@ -459,3 +459,16 @@ fn the_snapshot_source_form_saves_a_mapping_and_lists_again() {
     assert_eq!(sources[0].live(), fixture.uri_of("Documents"));
     assert_eq!(sources[0].collection(), ox_core::location::file_uri(&backups));
 }
+
+#[gtk::test]
+fn a_location_change_blocks_file_operations_until_its_guard_is_dropped() {
+    let fixture = Fixture::standard();
+    let test = TestWindow::open(&fixture.uri());
+    let guard = ox_core::places::FolderChangeGuard::acquire().unwrap();
+    assert!(test.window.is_writing_files());
+    assert!(test.window.begin_operation("Preparing copy…").is_none());
+    drop(guard);
+    assert!(!test.window.is_writing_files());
+    assert!(test.window.begin_operation("Preparing copy…").is_some());
+    test.window.end_operation();
+}

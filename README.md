@@ -55,7 +55,7 @@ Installation does not make OpenXplorer the default file manager. Default-app cha
 
 ### Verified scope
 
-The stable x86-64 package has been built with `makepkg` and installed on CachyOS. Package layout, installed files, shared-library dependencies and `openxplorer --version` were checked. Native GUI interaction, Wayland and live SMB have not yet been validated for this fork. The PKGBUILD also declares `aarch64`, but that build has not been verified here.
+The stable x86-64 package has been built with `makepkg` and installed on CachyOS. Package layout, installed files, shared-library dependencies and `openxplorer --version` were checked. The native Location tab has been tested under Xvfb with disposable folders and XDG configuration, including confirmation, validation and applying a path change without moving files. Full GUI behavior, Wayland and live SMB have not yet been validated for this fork. The PKGBUILD also declares `aarch64`, but that build has not been verified here.
 
 The [packaging guide](native/packaging/README.md), [documentation](docs/introduction.md) and [changelog](CHANGELOG.md) retain upstream material, including instructions for other distributions. They do not imply that this fork publishes those packages. Use the Arch instructions above for this fork.
 

@@ -9,6 +9,9 @@
 //! holds; the window keeps the frame, and so the view with everything it
 //! read, while the dialog's tab is in the background.
 
+use ox_core::ops::WriteProtection;
+use ox_core::places::FolderLocations;
+use std::rc::Rc;
 use std::sync::Arc;
 
 use gtk::glib;
@@ -32,7 +35,7 @@ const READING: &str = "Reading file properties…";
 const PANEL_MIN_HEIGHT: i32 = 290;
 
 /// What a Properties dialog needs from the window that opens it.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub(crate) struct PropertiesContext {
     /// The previous-versions service every window shares.
     pub versions: Arc<PreviousVersions>,
@@ -40,6 +43,10 @@ pub(crate) struct PropertiesContext {
     pub locations: LocationContext,
     /// The folder's measured size, if it was measured this session.
     pub folder_size: Option<FolderSizeState>,
+    pub folder_locations: FolderLocations,
+    pub protection: WriteProtection,
+    pub can_change_location: Rc<dyn Fn() -> bool>,
+    pub location_changed: Rc<dyn Fn()>,
 }
 
 mod imp {
@@ -67,6 +74,7 @@ mod imp {
         pub(super) general: gtk::Box,
         /// The Permissions tab.
         pub(super) permissions: gtk::Box,
+        pub(super) location: RefCell<Option<std::rc::Rc<super::super::location_panel::LocationPanel>>>,
         /// The Previous versions tab; set by `new`.
         pub(super) versions: OnceCell<VersionsPanel>,
         /// The Size value of a folder, once the properties are read, so a
@@ -131,7 +139,7 @@ impl PropertiesView {
             .set(versions)
             .expect("a new view has no versions panel yet");
         imp.target.set(target).expect("a new view has no target yet");
-        view.add_pages();
+        view.add_pages(&context);
         view.select_tab(initial);
         view.follow_selected_tab();
         view.read_properties(context);
@@ -148,7 +156,7 @@ impl PropertiesView {
     }
 
     /// Adds one page per tab the item has.
-    fn add_pages(&self) {
+    fn add_pages(&self, context: &PropertiesContext) {
         let imp = self.imp();
         let pages = &imp.pages;
         pages.set_vhomogeneous(false);
@@ -157,8 +165,15 @@ impl PropertiesView {
         imp.permissions.set_orientation(gtk::Orientation::Vertical);
         self.add_page(PropertiesTab::General, imp.general.upcast_ref());
         if let Some(folder) = self.target().known_folder {
-            let location = general_panel::location_panel(folder);
-            self.add_page(PropertiesTab::Location, location.upcast_ref());
+            let location = super::location_panel::LocationPanel::new(
+                folder,
+                context.folder_locations.clone(),
+                context.protection.clone(),
+                context.can_change_location.clone(),
+                context.location_changed.clone(),
+            );
+            self.add_page(PropertiesTab::Location, location.widget.upcast_ref());
+            imp.location.replace(Some(location));
         }
         self.add_page(PropertiesTab::Permissions, imp.permissions.upcast_ref());
         self.add_page(
@@ -282,6 +297,9 @@ impl PropertiesView {
     /// (`finish` in `propertiesDialog`).
     pub(crate) fn cancel_work(&self) {
         self.versions_panel().cancel();
+        if let Some(panel) = self.imp().location.borrow().as_ref() {
+            panel.cancel();
+        }
     }
 
     /// The Size value shown, for tests.

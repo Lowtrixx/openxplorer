@@ -92,6 +92,11 @@ impl AppContext {
         });
     }
 
+    /// Refresh all windows after an explicit standard-folder update.
+    pub(crate) fn refresh_known_folders(&self) {
+        self.read_known_folders(FolderLocations::from_environment());
+    }
+
     /// The Quick access rows of the standard folders, as last read.
     pub(crate) fn known_folders(&self) -> Vec<Place> {
         self.imp().known_folders.borrow().clone()

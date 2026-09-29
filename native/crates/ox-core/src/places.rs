@@ -11,11 +11,13 @@
 //! - `network`: saved shares, active mounts and visited servers merged into
 //!   one Network list, ported from `desktop/network_locations.py`.
 
+mod folder_change;
 mod known_folders;
 mod network;
 mod quick_access;
 mod user_dirs;
 
+pub use folder_change::{CheckedFolderChange, FolderChangeGuard, FolderChangeOutcome};
 pub use known_folders::{FolderLocations, KnownFolder, KnownFolderPaths};
 pub use network::{
     merge_network_locations, network_key, NetworkKey, NetworkKind, NetworkLocation, NetworkMount, SavedShare,
