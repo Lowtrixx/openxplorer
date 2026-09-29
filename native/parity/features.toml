@@ -13100,7 +13100,7 @@ native_note = "Porting notes: The default Windows-style artwork stays."
 id = "PROP-017"
 area = "PROP"
 title = "Location tab: relocate a standard XDG folder safely"
-behaviour = "For Desktop, Downloads, Documents, Pictures, Music and Videos, the Location tab reads 'Choose where <label> is stored. Applications that honor Linux’s standard-folder settings will use this location.'. It has a 'Folder location' field, an optional 'Choose a mounted network drive…' select of stable CIFS mounts, and buttons 'Check location', 'Restore default' and 'Use previous' (when a previous path exists). A status line and a warning follow: 'Existing files will NOT be moved. …'. The consent checkbox 'Change the system folder location; leave existing files in place.' starts unchecked. 'Apply location' stays disabled until the checkbox is ticked and the checked path equals the field; editing the field requires re-checking. A check reports 'Mounted network folder · <path>' or 'Local folder · <path>', or 'The destination changed. Check it again.' if edited mid-check. Apply reports 'Location updated. Configuration backed up. No files moved.'. Below sits the collapsed 'Set up network mount (SMB)' assistant (NET-027). The backend checks are PROP-031."
+behaviour = "For Desktop, Downloads, Documents, Pictures, Music and Videos, the Location tab reads 'Choose the folder applications use for <label>.'. It has a 'Folder location' field, an optional 'Choose a mounted network drive…' select of stable CIFS mounts, and buttons 'Restore default' and 'Use previous' (when a previous path exists). A status line and a note say 'Existing files stay in their current location.'. The footer 'Apply' button appears on the Location tab, uses the dialog's primary button style, and stays disabled while the current location is loading, while an update runs, for an empty or unchanged field, or after the dialog closes. Clicking Apply validates the destination and applies the change with a private backup; stale current settings are rejected and the displayed location is refreshed. Apply reports 'Location updated. Configuration backed up. No files moved.'. Below sits the collapsed 'Set up network mount (SMB)' assistant (NET-027). The backend checks are PROP-031."
 origin = ["openxplorer"]
 priority = "must"
 openxplorer = "has"
@@ -13123,7 +13123,7 @@ python_tests = [
 bridge = ["locationCheck", "locationApply", "environment"]
 gnome = "xdg-user-dirs (user-dirs.dirs); xdg-user-dirs-update --set"
 native = "partial"
-native_note = "Native Location now supports current path, Browse, Check, Restore default, Use previous, explicit consent and Apply with backend validation and private backup. Existing files stay put. Tested with disposable XDG config under Xvfb. Persistent mounts can be chosen by path or mounted SMB URI; the dedicated mount selector and mount setup assistant are not part of this native tab. Flatpak changes are explicitly refused."
+native_note = "Native Location now supports current path, Browse, Restore default, Use previous and a one-click footer Apply action with backend validation and private backup. Existing files stay put, and stale current settings are rejected. Tested with disposable XDG config under Xvfb. Persistent mounts can be chosen by path or mounted SMB URI; the dedicated mount selector and mount setup assistant are not part of this native tab. Flatpak changes are explicitly refused."
 
 [[feature]]
 id = "PROP-018"

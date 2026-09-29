@@ -23,7 +23,7 @@ use crate::transfer::Cancellation;
 pub const MAX_ENTRIES: u64 = 1_000_000;
 
 /// The longest one scan runs (`MAX_SECONDS` in Python).
-pub const MAX_DURATION: Duration = Duration::from_secs(300);
+pub const MAX_DURATION: Duration = Duration::from_mins(5);
 
 /// The shortest time between two progress reports while scanning.
 const PROGRESS_INTERVAL: Duration = Duration::from_millis(200);

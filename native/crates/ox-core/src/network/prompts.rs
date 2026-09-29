@@ -65,7 +65,7 @@ use crate::location::{normalise, LocationError};
 
 /// How long an unanswered challenge stays open before its mount is
 /// aborted.
-pub(super) const CHALLENGE_LIFETIME: Duration = Duration::from_secs(180);
+pub(super) const CHALLENGE_LIFETIME: Duration = Duration::from_mins(3);
 
 /// Shown when a credential that worked could not be saved.
 pub const KEYRING_SAVE_NOTICE: &str =

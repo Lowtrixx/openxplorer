@@ -27,6 +27,7 @@ use super::metadata::{read_properties, ItemProperties};
 use super::versions_panel::VersionsPanel;
 use super::{PropertiesTab, PropertiesTarget};
 use crate::dialog_layer::{quiet_text, DialogFrame, DialogWidth};
+use crate::window::ButtonStyle;
 
 /// Shown on the General tab while the properties are read.
 const READING: &str = "Reading file properties…";
@@ -235,6 +236,23 @@ impl PropertiesView {
         } else {
             DialogWidth::Properties
         }
+    }
+
+    /// Adds the Location action to `frame` when this item has a Location tab.
+    pub(crate) fn add_location_apply(&self, frame: &DialogFrame) {
+        let Some(panel) = self.imp().location.borrow().as_ref().cloned() else {
+            return;
+        };
+        let button = frame.add_button("Apply", ButtonStyle::Accent);
+        button.set_visible(self.selected_tab() == PropertiesTab::Location);
+        panel.attach_apply(&button);
+        self.imp().pages.connect_visible_child_name_notify(glib::clone!(
+            #[weak(rename_to = view)]
+            self,
+            #[weak]
+            button,
+            move |_| button.set_visible(view.selected_tab() == PropertiesTab::Location)
+        ));
     }
 
     /// Asks the frame around the view to fit the tab shown.

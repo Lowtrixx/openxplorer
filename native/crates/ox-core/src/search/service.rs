@@ -58,7 +58,7 @@ impl Default for IndexSettings {
     fn default() -> Self {
         Self {
             auto_index: AutoIndex::On,
-            network_interval: Duration::from_secs(60),
+            network_interval: Duration::from_mins(1),
         }
     }
 }
@@ -371,7 +371,7 @@ mod tests {
         let defaults = IndexSettings::from_preferences(&Preferences::default());
 
         assert_eq!(settings.auto_index, AutoIndex::Paused);
-        assert_eq!(settings.network_interval, Duration::from_secs(300));
+        assert_eq!(settings.network_interval, Duration::from_mins(5));
         assert_eq!(defaults, IndexSettings::default());
     }
 }
