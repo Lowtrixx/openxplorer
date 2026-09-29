@@ -6,6 +6,8 @@ A familiar Location tab, with Linux filesystem semantics.
 
 Right-click Downloads or Documents → Properties → Location. Choose an existing writable directory, check the destination, and confirm before applying. The previous user-directory setting is backed up. No existing files are moved, merged or deleted.
 
+The native Location tab needs xdg-user-dirs and supports existing local folders and persistent mounted SMB destinations. Flatpak cannot change host standard-folder settings. The native tab does not include the mount setup assistant or the Brave follow-up; those remain separate settings and tools.
+
 ## Use a stable mount for a network destination
 
 Use a persistent Linux mount path such as /mnt/nas/downloads. Temporary per-login GVfs paths and an unmounted SMB URL are not suitable replacements for a standard folder.

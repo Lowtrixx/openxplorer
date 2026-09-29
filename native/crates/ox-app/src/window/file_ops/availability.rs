@@ -222,7 +222,7 @@ impl BrowserWindow {
         CommandFacts {
             selection: selection_facts(&model.selected_items(), &locations),
             folder,
-            is_busy: operations.is_busy(),
+            is_busy: operations.is_busy() || ox_core::places::FolderChangeGuard::is_busy(),
             has_file_clipboard: operations.clipboard.is_some(),
             can_undo: context.journal_label(JournalDirection::Undo).is_some(),
             can_redo: context.journal_label(JournalDirection::Redo).is_some(),

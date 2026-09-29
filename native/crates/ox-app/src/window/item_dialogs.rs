@@ -211,6 +211,30 @@ impl BrowserWindow {
             versions: self.context().previous_versions().clone(),
             locations: self.imp().locations.borrow().clone(),
             folder_size: self.measured_folder_size(&target.uri),
+            folder_locations: ox_core::places::FolderLocations::from_environment(),
+            protection: self.context().write_protection(),
+            can_change_location: std::rc::Rc::new(glib::clone!(
+                #[weak(rename_to = window)]
+                self,
+                #[upgrade_or]
+                false,
+                move || {
+                    let Some(app) = window.application() else {
+                        return false;
+                    };
+                    !app.windows()
+                        .into_iter()
+                        .filter_map(|w| w.downcast::<BrowserWindow>().ok())
+                        .any(|w| w.is_writing_files())
+                }
+            )),
+            location_changed: std::rc::Rc::new(glib::clone!(
+                #[weak(rename_to = context)]
+                self.context(),
+                move || {
+                    context.refresh_known_folders();
+                }
+            )),
         };
         let title = target.dialog_title();
         let view = PropertiesView::new(target, context, tab);

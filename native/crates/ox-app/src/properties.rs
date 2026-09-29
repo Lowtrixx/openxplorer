@@ -30,6 +30,7 @@
 
 mod folder_sizes;
 mod general_panel;
+mod location_panel;
 mod metadata;
 mod restore;
 mod size_scan_strip;

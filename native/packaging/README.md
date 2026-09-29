@@ -129,14 +129,17 @@ explains a missing one when that feature is used:
 | SMB shares, phones, Recycle Bin, drive list | `gvfs`, `gvfs-backends`, `gvfs-fuse` | `gvfs`, `gvfs-smb`, `gvfs-mtp`, `gvfs-fuse` | `gvfs`, `gvfs-backends`, `gvfs-fuse` | `gvfs`, `gvfs-smb`, `gvfs-mtp` |
 | Remembering SMB passwords (Secret Service) | `gnome-keyring \| keepassxc` | `gnome-keyring` | `gnome-keyring` | `gnome-keyring` |
 | Making OpenXplorer the default file manager | `xdg-utils` | `xdg-utils` | `xdg-utils` | `xdg-utils` |
+| Changing standard-folder locations | `xdg-user-dirs` | `xdg-user-dirs` | `xdg-user-dirs` | `xdg-user-dirs` |
 | Open in Terminal | `gnome-terminal \| x-terminal-emulator` | (every desktop has one) | (every desktop has one) | (every desktop has one) |
 | Open in archive manager | `file-roller` | `file-roller` | `file-roller` | `file-roller` |
 | In-app updates (stable `.deb` only) | `pkexec` | | | |
 | Persistent SMB mount helper (stable only) | `python3 (>= 3.10)`, `cifs-utils` | `python3`, `cifs-utils` | `python3`, `cifs-utils` | `python`, `cifs-utils` |
 
 **Not dependencies.** The Python package depended on Python, PyGObject,
-WebKitGTK, libsecret and `xdg-user-dirs`; the native program needs none of
-them (the Secret Service client is pure Rust). RPM and Arch have no virtual
+WebKitGTK and libsecret; the native program needs none of them (the Secret
+Service client is pure Rust). Location changes need `xdg-user-dirs`, installed
+by the Arch package. Other native packages report a missing tool if needed.
+Flatpak cannot change host standard-folder settings from this tab. RPM and Arch have no virtual
 terminal package, so they name none.
 
 ## Debian package

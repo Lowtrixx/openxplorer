@@ -13122,7 +13122,8 @@ python_tests = [
 ]
 bridge = ["locationCheck", "locationApply", "environment"]
 gnome = "xdg-user-dirs (user-dirs.dirs); xdg-user-dirs-update --set"
-native = "todo"
+native = "partial"
+native_note = "Native Location now supports current path, Browse, Check, Restore default, Use previous, explicit consent and Apply with backend validation and private backup. Existing files stay put. Tested with disposable XDG config under Xvfb. Persistent mounts can be chosen by path or mounted SMB URI; the dedicated mount selector and mount setup assistant are not part of this native tab. Flatpak changes are explicitly refused."
 
 [[feature]]
 id = "PROP-018"
@@ -13537,8 +13538,8 @@ sources = [
 python_tests = ["desktop/tests/test_v05.py::SettingsWindowsTests::test_mount_resolution"]
 bridge = ["locationCheck", "locationApply", "environment"]
 gnome = "xdg-user-dirs-update --set run without a shell; re-read user-dirs.dirs; detect CIFS and GVfs mounts from /proc/self/mountinfo"
-native = "todo"
-native_note = "Porting notes: PROP-017 describes the dialog, SET-018 the parsing and SAFE-020 the 15 s timeout. No test covers these backend rules; the PROP-017 tests run against the preview. The backend also accepts the TEMPLATES and PUBLICSHARE keys, although the UI offers six folders; decide whether to keep that."
+native = "done"
+native_note = "native/crates/ox-core/src/places/folder_change.rs and its tests port validation, explicit confirmation, private backup/history, 15-second updater and readback without moving contents. Native UI checks all windows for running operations and blocks new writes during apply. Stale configuration, replaced targets and changed symlinks require a new check. Flatpak host changes are explicitly refused."
 
 [[feature]]
 id = "PROP-032"
