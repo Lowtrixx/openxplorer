@@ -14,7 +14,7 @@ use ox_core::settings::Theme;
 
 use crate::application::AppAction;
 use crate::folder_view::grid::IconSize;
-use crate::folder_view::sorting::{SortColumn, SortDirection, SortOrder};
+use crate::folder_view::sorting::{GroupingMode, SortColumn, SortDirection, SortOrder};
 use crate::text_size::Step;
 
 use super::folder_pane::FolderView;
@@ -277,6 +277,20 @@ impl BrowserWindow {
                 },
             ),
         ]);
+        self.add_action_entries([choice_action(
+            WindowAction::Grouping,
+            GroupingMode::Automatic.as_str(),
+            |window, key| {
+                let Some(grouping) = GroupingMode::from_key(key) else {
+                    return false;
+                };
+                if let Some(tab) = window.imp().session.borrow_mut().active_mut() {
+                    tab.grouping = grouping;
+                }
+                window.update_date_grouping();
+                true
+            },
+        )]);
         self.follow_header_sorting();
     }
 

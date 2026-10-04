@@ -84,6 +84,8 @@ pub(crate) enum WindowAction {
     Sort,
     /// Whether the details view sorts ascending or descending.
     Direction,
+    /// How the folder groups rows around the existing sort order.
+    Grouping,
     /// The light, dark or system appearance.
     Theme,
     /// Makes text larger, smaller or its default size (Ctrl+plus, minus
@@ -250,6 +252,10 @@ impl WindowAction {
     ///
     /// This is the one table of every action's name, so it is longer than
     /// a function should be.
+    #[expect(
+        clippy::too_many_lines,
+        reason = "Keep the exhaustive action-name table in one place"
+    )]
     pub(crate) const fn name(self) -> &'static str {
         match self {
             WindowAction::NewTab => "new-tab",
@@ -284,6 +290,7 @@ impl WindowAction {
             WindowAction::DetailsPane => "details-pane",
             WindowAction::Sort => "sort",
             WindowAction::Direction => "direction",
+            WindowAction::Grouping => "grouping",
             WindowAction::Theme => "theme",
             WindowAction::TextSize(step) => step.action_name(),
             WindowAction::ResetLayout => "reset-layout",

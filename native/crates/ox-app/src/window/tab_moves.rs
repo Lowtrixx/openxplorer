@@ -25,7 +25,7 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{gio, glib};
 
-use crate::folder_view::sorting::SortOrder;
+use crate::folder_view::sorting::{GroupingMode, SortOrder};
 use crate::history::History;
 use crate::icons::Icon;
 use crate::locations::Page;
@@ -75,6 +75,8 @@ pub(super) struct MovedTab {
     view: FolderView,
     /// The details' sort order, also the window's.
     sort: SortOrder,
+    /// The tab’s grouping choice.
+    grouping: GroupingMode,
     /// The page Settings shows, for the Settings tab.
     settings_view: Option<SettingsView>,
 }
@@ -160,6 +162,7 @@ impl BrowserWindow {
             scroll: tab.scroll,
             view: self.folder_pane().view(),
             sort: self.folder_pane().details().sort_order(),
+            grouping: tab.grouping,
             settings_view: is_settings.then(|| self.settings_page().view()),
         })
     }
@@ -185,6 +188,7 @@ impl BrowserWindow {
         let id = self.imp().session.borrow_mut().insert_moved(tab.history, before);
         if let Some(received) = self.imp().session.borrow_mut().tab_mut(id) {
             received.selected = tab.selected;
+            received.grouping = tab.grouping;
             received.scroll_after_listing = Some(tab.scroll);
         }
         self.context().remember_network(&uri);
@@ -440,6 +444,7 @@ mod tests {
         let many = Fixture::with_files(200);
         let test = window_with_a_travelled_tab(&first, &many);
         let moved = active_tab(&test.window);
+        test.activate("grouping", Some("date-modified"));
 
         run_tab_action(
             &test.window,
@@ -451,6 +456,11 @@ mod tests {
         wait_until("the moved tab to be listed", || window.is_listed());
 
         assert_eq!(window.current_uri(), Some(many.uri()));
+        assert_eq!(
+            window.imp().session.borrow().active().unwrap().grouping,
+            GroupingMode::DateModified
+        );
+        assert!(window.folder_pane().model().date_grouping().is_some());
         let history = window
             .imp()
             .session

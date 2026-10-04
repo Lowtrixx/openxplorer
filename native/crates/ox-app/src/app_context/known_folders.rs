@@ -162,4 +162,43 @@ mod tests {
         });
         assert!(announcements.get() >= 1, "the windows were told");
     }
+
+    /// parity: VIEW-022
+    #[gtk::test]
+    fn automatic_date_grouping_follows_a_live_downloads_relocation() {
+        use crate::test_support::harness::application;
+        use crate::window::BrowserWindow;
+
+        let folder = tempfile::tempdir().unwrap();
+        let home = folder.path().join("home");
+        let config = folder.path().join("config");
+        fs::create_dir_all(home.join("Downloads")).unwrap();
+        fs::create_dir_all(home.join("Incoming/Child")).unwrap();
+        fs::create_dir(&config).unwrap();
+        let context = AppContext::with_folder_locations(
+            skin(),
+            Settings::open(&folder.path().join("settings")),
+            FolderLocations::new(home.clone(), &config),
+        );
+        let window = BrowserWindow::new(&application(), &context);
+        window.add_tab(&uri_in(&home, "Downloads")).unwrap();
+        wait_until("Downloads listing", || window.is_listed());
+        assert!(window.folder_model().date_grouping().is_some());
+
+        fs::write(
+            config.join("user-dirs.dirs"),
+            "XDG_DOWNLOAD_DIR=\"$HOME/Incoming\"\n",
+        )
+        .unwrap();
+        wait_until("the old Downloads root is no longer grouped", || {
+            window.folder_model().date_grouping().is_none()
+        });
+        window.add_tab(&uri_in(&home, "Incoming")).unwrap();
+        wait_until("relocated Downloads listing", || window.is_listed());
+        assert!(window.folder_model().date_grouping().is_some());
+        window.add_tab(&uri_in(&home, "Incoming/Child")).unwrap();
+        wait_until("Downloads child listing", || window.is_listed());
+        assert!(window.folder_model().date_grouping().is_none());
+        window.close();
+    }
 }

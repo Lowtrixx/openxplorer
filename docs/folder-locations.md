@@ -8,6 +8,12 @@ Right-click Downloads or Documents → Properties → Location. Choose an existi
 
 The native Location tab needs xdg-user-dirs and supports existing local folders and persistent mounted SMB destinations. Flatpak cannot change host standard-folder settings. The native tab does not include the mount setup assistant or the Brave follow-up; those remain separate settings and tools.
 
+## Group files by modification date
+
+The native app groups your standard Downloads folder by modification date, including when its location has changed. The Details view shows headings for Today, Yesterday, This week, Last week, This month, Last month and Long time ago, using local calendar dates. Future dates and unknown dates appear separately. Icon views retain the grouped order without headings.
+
+Use Sort → Group by date modified or No grouping in any folder. Automatic (Downloads) restores the default. The choice stays with the open tab; the selected file sort still applies within each group.
+
 ## Use a stable mount for a network destination
 
 Use a persistent Linux mount path such as /mnt/nas/downloads. Temporary per-login GVfs paths and an unmounted SMB URL are not suitable replacements for a standard folder.

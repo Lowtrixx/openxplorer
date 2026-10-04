@@ -103,6 +103,7 @@ impl BrowserWindow {
     /// sidebar highlight and landing page for the active tab's location,
     /// and shows the Settings page on the Settings tab.
     pub(super) fn render_location(&self) {
+        self.update_date_grouping();
         let Some(location) = self.active_location() else {
             return;
         };

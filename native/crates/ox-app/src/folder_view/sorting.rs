@@ -12,6 +12,8 @@ use std::cmp::Ordering;
 use std::iter::Peekable;
 use std::str::Chars;
 
+use glib::DateTime;
+
 /// A sortable column of the details view.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum SortColumn {
@@ -145,6 +147,149 @@ impl SortOrder {
         column: SortColumn::Name,
         direction: SortDirection::Ascending,
     };
+}
+
+/// The grouping choice saved with a tab.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum GroupingMode {
+    /// Follow the standard Downloads folder default.
+    Automatic,
+    /// Group rows by their local Date modified calendar bucket.
+    DateModified,
+    /// Keep one ungrouped list.
+    None,
+}
+
+impl GroupingMode {
+    /// The action and tab-transfer key for this choice.
+    pub(crate) const fn as_str(self) -> &'static str {
+        match self {
+            Self::Automatic => "automatic",
+            Self::DateModified => "date-modified",
+            Self::None => "none",
+        }
+    }
+
+    /// The choice named by an action or saved state key.
+    pub(crate) fn from_key(key: &str) -> Option<Self> {
+        [Self::Automatic, Self::DateModified, Self::None]
+            .into_iter()
+            .find(|mode| mode.as_str() == key)
+    }
+}
+
+/// The calendar buckets shown by a grouped folder view.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) enum DateGroup {
+    /// A timestamp after the local current date.
+    Future,
+    /// The local current date.
+    Today,
+    /// The local date immediately before today.
+    Yesterday,
+    /// A date earlier this Monday-to-Sunday week.
+    ThisWeek,
+    /// A date in the previous Monday-to-Sunday week.
+    LastWeek,
+    /// A date earlier in the current calendar month.
+    ThisMonth,
+    /// A date in the previous calendar month.
+    LastMonth,
+    /// A date older than the previous calendar month.
+    LongTimeAgo,
+    /// A missing or unrepresentable timestamp.
+    Unknown,
+}
+
+impl DateGroup {
+    /// The section heading shown to users.
+    pub(crate) const fn label(self) -> &'static str {
+        match self {
+            Self::Future => "Future",
+            Self::Today => "Today",
+            Self::Yesterday => "Yesterday",
+            Self::ThisWeek => "This week",
+            Self::LastWeek => "Last week",
+            Self::ThisMonth => "This month",
+            Self::LastMonth => "Last month",
+            Self::LongTimeAgo => "Long time ago",
+            Self::Unknown => "Unknown date",
+        }
+    }
+}
+
+/// Local calendar boundaries used by the section sorter and header factory.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct DateGrouping {
+    today: DateTime,
+    yesterday: DateTime,
+    this_week: DateTime,
+    last_week: DateTime,
+    this_month: DateTime,
+    last_month: DateTime,
+}
+
+impl DateGrouping {
+    /// The current local calendar boundaries, or `None` if `GLib` cannot make them.
+    pub(crate) fn current() -> Option<Self> {
+        DateTime::now_local().ok().as_ref().and_then(Self::at)
+    }
+
+    /// Boundaries for a supplied local time. Tests use this to avoid a clock race.
+    fn at(now: &DateTime) -> Option<Self> {
+        let today = midnight(now)?;
+        let yesterday = today.add_days(-1).ok()?;
+        let this_week = today.add_days(-(today.day_of_week() - 1)).ok()?;
+        let last_week = this_week.add_days(-7).ok()?;
+        let this_month = DateTime::from_local(today.year(), today.month(), 1, 0, 0, 0.0).ok()?;
+        let last_month = this_month.add_full(0, -1, 0, 0, 0, 0.0).ok()?;
+        Some(Self {
+            today,
+            yesterday,
+            this_week,
+            last_week,
+            this_month,
+            last_month,
+        })
+    }
+
+    /// The section for an entry's Unix timestamp.
+    pub(crate) fn group(&self, modified: Option<u64>) -> DateGroup {
+        let Some(date) = modified
+            .and_then(|seconds| i64::try_from(seconds).ok())
+            .and_then(|seconds| DateTime::from_unix_local(seconds).ok())
+            .and_then(|time| midnight(&time))
+        else {
+            return DateGroup::Unknown;
+        };
+        if date > self.today {
+            DateGroup::Future
+        } else if date >= self.today {
+            DateGroup::Today
+        } else if date >= self.yesterday {
+            DateGroup::Yesterday
+        } else if date >= self.this_week {
+            DateGroup::ThisWeek
+        } else if date >= self.last_week {
+            DateGroup::LastWeek
+        } else if date >= self.this_month {
+            DateGroup::ThisMonth
+        } else if date >= self.last_month {
+            DateGroup::LastMonth
+        } else {
+            DateGroup::LongTimeAgo
+        }
+    }
+
+    /// Compares two timestamps in section order, newest section first.
+    pub(crate) fn compare(&self, left: Option<u64>, right: Option<u64>) -> Ordering {
+        self.group(left).cmp(&self.group(right))
+    }
+}
+
+/// Midnight in the timestamp's local calendar date.
+fn midnight(time: &DateTime) -> Option<DateTime> {
+    DateTime::from_local(time.year(), time.month(), time.day_of_month(), 0, 0, 0.0).ok()
 }
 
 /// A name or type label folded for natural ordering: decomposed, with
@@ -360,5 +505,40 @@ mod tests {
             assert_eq!(SortDirection::from_sort_type(sort_type), direction);
         }
         assert_eq!(SortDirection::from_key("sideways"), None);
+    }
+
+    fn stamp(year: i32, month: i32, day: i32) -> u64 {
+        u64::try_from(
+            DateTime::from_local(year, month, day, 12, 0, 0.0)
+                .expect("test date")
+                .to_unix(),
+        )
+        .expect("test dates are after the Unix epoch")
+    }
+
+    #[test]
+    fn date_groups_follow_local_calendar_boundaries() {
+        let now = DateTime::from_local(2026, 9, 23, 12, 0, 0.0).expect("test date");
+        let grouping = DateGrouping::at(&now).expect("test boundaries");
+        assert_eq!(grouping.group(Some(stamp(2026, 9, 24))), DateGroup::Future);
+        assert_eq!(grouping.group(Some(stamp(2026, 9, 23))), DateGroup::Today);
+        assert_eq!(grouping.group(Some(stamp(2026, 9, 22))), DateGroup::Yesterday);
+        assert_eq!(grouping.group(Some(stamp(2026, 9, 21))), DateGroup::ThisWeek);
+        assert_eq!(grouping.group(Some(stamp(2026, 9, 20))), DateGroup::LastWeek);
+        assert_eq!(grouping.group(Some(stamp(2026, 9, 1))), DateGroup::ThisMonth);
+        assert_eq!(grouping.group(Some(stamp(2026, 8, 31))), DateGroup::LastMonth);
+        assert_eq!(grouping.group(Some(stamp(2026, 7, 31))), DateGroup::LongTimeAgo);
+        assert_eq!(grouping.group(None), DateGroup::Unknown);
+        assert_eq!(grouping.group(Some(u64::MAX)), DateGroup::Unknown);
+    }
+
+    #[test]
+    fn date_groups_cross_month_and_year_boundaries() {
+        let grouping = DateGrouping::at(&DateTime::from_local(2027, 1, 1, 12, 0, 0.0).unwrap()).unwrap();
+        assert_eq!(grouping.group(Some(stamp(2026, 12, 31))), DateGroup::Yesterday);
+        assert_eq!(grouping.group(Some(stamp(2026, 12, 30))), DateGroup::ThisWeek);
+        assert_eq!(grouping.group(Some(stamp(2026, 12, 24))), DateGroup::LastWeek);
+        assert_eq!(grouping.group(Some(stamp(2026, 12, 1))), DateGroup::LastMonth);
+        assert_eq!(grouping.group(Some(stamp(2026, 11, 30))), DateGroup::LongTimeAgo);
     }
 }

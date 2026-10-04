@@ -52,6 +52,9 @@ columnview.files > header > button sort-indicator {
 columnview.files > header > button .sort-caret { margin: 1px 0 0 6px; color: @ox_muted; }
 columnview.files > header > button .sort-caret.ascending { transform: rotate(180deg); }
 
+/* Native date sections remain outside the selectable file rows. */
+columnview.files .group-heading { color: @ox_accent; font-weight: 600; }
+
 /* ---- Details view: rows ---- */
 /* Rows are inset 12px as in the web list. GTK places each cell at its
    column's position within the row, so a cell moves back by the row's

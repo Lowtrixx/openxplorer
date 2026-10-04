@@ -13,6 +13,7 @@ use ox_core::entry::EntryError;
 
 use crate::folder_view::item::FileItem;
 use crate::folder_view::loader::Listing;
+use crate::folder_view::sorting::GroupingMode;
 use crate::folder_view::watch::Watch;
 use crate::history::History;
 
@@ -100,6 +101,8 @@ pub(super) struct Tab {
     pub reveals_selection: bool,
     /// The vertical scroll position, restored when the tab is shown again.
     pub scroll: f64,
+    /// The explicit grouping choice, or the Downloads default.
+    pub grouping: GroupingMode,
     /// A scroll position to restore once the listing finishes: a tab moved
     /// from another window keeps its place in its folder (TAB-039).
     pub scroll_after_listing: Option<f64>,
@@ -124,6 +127,7 @@ impl Tab {
             selected: Vec::new(),
             reveals_selection: false,
             scroll: 0.0,
+            grouping: GroupingMode::Automatic,
             scroll_after_listing: None,
             listing: None,
             watch: None,

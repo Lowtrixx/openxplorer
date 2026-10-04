@@ -41,6 +41,7 @@ impl BrowserWindow {
     /// Draws the sidebar, then redraws it whenever the volumes or the
     /// places change.
     pub(super) fn watch_environment(&self) {
+        self.follow_grouping_calendar();
         self.read_volumes();
         self.render_places();
         self.context().refresh_stable_mounts();
@@ -124,6 +125,7 @@ impl BrowserWindow {
     /// the art of their sidebar rows, and the folders Settings offers the
     /// search index.
     pub(super) fn render_places(&self) {
+        self.update_date_grouping();
         let places = self.places();
         let entries = sidebar::sidebar_entries(&places, &self.imp().locations.borrow());
         self.sidebar().set_entries(entries);
