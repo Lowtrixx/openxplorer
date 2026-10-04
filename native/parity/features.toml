@@ -3179,8 +3179,8 @@ sources = [
 python_tests = []
 bridge = ["preferences"]
 dolphin = "show_in_groups"
-native = "todo"
-native_note = "Porting notes: Explorer offers the same through 'Group by'."
+native = "partial"
+native_note = "Date modified sections use GTK SectionModel and native details headings; Automatic applies only to the configured Downloads root and follows relocation. Sort offers explicit date grouping or none per open tab, retained on tab transfer. Calendar boundaries, selection, sorting, tab switching and heading rendering are tested in folder_view/sorting.rs and window/grouping.rs. Icon view retains group order without headings. Grouping by other keys, collapsing groups and persistence across restarts remain unimplemented."
 
 [[feature]]
 id = "VIEW-023"

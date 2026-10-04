@@ -25,7 +25,7 @@ use crate::folder_view::column_titles;
 use crate::folder_view::column_widths;
 use crate::folder_view::item::FileItem;
 use crate::folder_view::model::{self, FolderModel};
-use crate::folder_view::sorting::{SortColumn, SortDirection, SortOrder};
+use crate::folder_view::sorting::{DateGrouping, SortColumn, SortDirection, SortOrder};
 
 /// Icon edge in details rows (`.name-cell svg{height:21px}`).
 const ROW_ICON_SIZE: i32 = 21;
@@ -97,6 +97,34 @@ fn text_factory(column: SortColumn, owners: &Rc<CellOwners>) -> gtk::SignalListI
             label.set_text(&cell_text(column, &item));
             bind_owners.style_cell(&label, &item);
             label.set_tooltip_text(cell_tooltip(column, &item).as_deref());
+        }
+    });
+    factory
+}
+
+/// The native section heading shown above the first row of each date group.
+fn section_header_factory(grouping: &DateGrouping) -> gtk::SignalListItemFactory {
+    let factory = gtk::SignalListItemFactory::new();
+    factory.connect_setup(|_, object| {
+        let label = gtk::Label::new(None);
+        label.set_xalign(0.0);
+        label.set_margin_start(26);
+        label.set_margin_top(12);
+        label.set_margin_bottom(4);
+        label.add_css_class("group-heading");
+        label.set_accessible_role(gtk::AccessibleRole::Heading);
+        object
+            .downcast_ref::<gtk::ListHeader>()
+            .expect("section header")
+            .set_child(Some(&label));
+    });
+    let grouping = grouping.clone();
+    factory.connect_bind(move |_, object| {
+        let header = object.downcast_ref::<gtk::ListHeader>().expect("section header");
+        let label = header.child().and_downcast::<gtk::Label>();
+        let item = header.item().and_downcast::<FileItem>();
+        if let (Some(label), Some(item)) = (label, item) {
+            label.set_label(grouping.group(item.entry().modified).label());
         }
     });
     factory
@@ -299,6 +327,19 @@ impl DetailsView {
         let sorts_by_folder_path = self.sort_order().column == SortColumn::FolderPath;
         if listing == DetailsListing::Folder && sorts_by_folder_path {
             self.sort_by(SortOrder::DEFAULT);
+        }
+    }
+
+    /// Enables or disables GTK's native section headings for date groups.
+    pub(crate) fn set_date_grouping(&self, grouping: Option<&DateGrouping>) {
+        match grouping {
+            Some(grouping) => {
+                let factory = section_header_factory(grouping);
+                self.column_view().set_header_factory(Some(&factory));
+            }
+            None => self
+                .column_view()
+                .set_header_factory(None::<&gtk::ListItemFactory>),
         }
     }
 

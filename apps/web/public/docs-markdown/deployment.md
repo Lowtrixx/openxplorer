@@ -6,7 +6,7 @@ Publish a static site linked to its public source repository.
 
 Edit apps/web/lib/site.ts for public identity. The canonical project URL is https://openxplorer.app.
 
-The public source repository is https://github.com/AKolenda/openxplorer. Package calls to action link to https://github.com/AKolenda/openxplorer/releases. Source links lead to the repository. The website has no direct download links. Keep the repository public whenever the website links to it.
+This fork’s public source repository is https://github.com/Lowtrixx/openxplorer. Package calls to action link to https://github.com/AKolenda/openxplorer/releases. Source links lead to the repository. The website has no direct download links. Keep the repository public whenever the website links to it.
 
 ## Prepare a local release
 

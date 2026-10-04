@@ -8,7 +8,7 @@ export const site = {
   title: 'OpenXplorer — A familiar file manager for Linux',
   description: 'Browse local files and SMB shares, drag files into compatible apps, and keep folders close with tabs and pins. An open-source Linux file manager built for Zorin OS.',
   license: 'AGPL-3.0-only',
-  repository: 'https://github.com/AKolenda/openxplorer',
+  repository: 'https://github.com/Lowtrixx/openxplorer',
   releases: 'https://github.com/AKolenda/openxplorer/releases',
 };
 /** The download button names a version, so it opens that exact release. */

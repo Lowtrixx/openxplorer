@@ -308,6 +308,14 @@
         ]
       },
       {
+        "id": "date-groups",
+        "title": "Group files by modification date",
+        "paragraphs": [
+          "The native app groups your standard Downloads folder by modification date, including when its location has changed. The Details view shows headings for Today, Yesterday, This week, Last week, This month, Last month and Long time ago, using local calendar dates. Future dates and unknown dates appear separately. Icon views retain the grouped order without headings.",
+          "Use Sort → Group by date modified or No grouping in any folder. Automatic (Downloads) restores the default. The choice stays with the open tab; the selected file sort still applies within each group."
+        ]
+      },
+      {
         "id": "network-destination",
         "title": "Use a stable mount for a network destination",
         "paragraphs": [
@@ -510,7 +518,7 @@
         "title": "Configure before publication",
         "paragraphs": [
           "Edit apps/web/lib/site.ts for public identity. The canonical project URL is https://openxplorer.app.",
-          "The public source repository is https://github.com/AKolenda/openxplorer. Package calls to action link to https://github.com/AKolenda/openxplorer/releases. Source links lead to the repository. The website has no direct download links. Keep the repository public whenever the website links to it."
+          "This fork’s public source repository is https://github.com/Lowtrixx/openxplorer. Package calls to action link to https://github.com/AKolenda/openxplorer/releases. Source links lead to the repository. The website has no direct download links. Keep the repository public whenever the website links to it."
         ]
       },
       {
@@ -596,7 +604,7 @@
         "id": "contact",
         "title": "Project identity before publication",
         "paragraphs": [
-          "The canonical project domain is openxplorer.app and the public source repository is https://github.com/AKolenda/openxplorer. The website does not host release downloads. Use genuine maintainer/contact details when they are added and do not fabricate usage statistics or support claims."
+          "The upstream project domain is openxplorer.app. This fork’s public source repository is https://github.com/Lowtrixx/openxplorer. The website does not host release downloads. Use genuine maintainer/contact details when they are added and do not fabricate usage statistics or support claims."
         ]
       }
     ]

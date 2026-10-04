@@ -17,7 +17,7 @@ use gtk::{gio, glib};
 
 use crate::folder_view::filter::FilterState;
 use crate::folder_view::item::FileItem;
-use crate::folder_view::sorting::{self, SortColumn};
+use crate::folder_view::sorting::{self, DateGrouping, SortColumn};
 
 /// The item a folder model hands to its filter or sorters.
 fn as_item(object: &glib::Object) -> &FileItem {
@@ -87,6 +87,7 @@ pub(crate) struct FolderModel {
     filter_model: gtk::FilterListModel,
     sort_model: gtk::SortListModel,
     selection: gtk::MultiSelection,
+    date_grouping: RefCell<Option<DateGrouping>>,
 }
 
 impl FolderModel {
@@ -107,6 +108,7 @@ impl FolderModel {
             filter_model,
             sort_model,
             selection,
+            date_grouping: RefCell::new(None),
         }
     }
 
@@ -129,6 +131,26 @@ impl FolderModel {
     /// The sorted, filtered items in display order.
     pub(crate) fn sorted(&self) -> &gtk::SortListModel {
         &self.sort_model
+    }
+
+    /// Sorts the rows into local calendar sections while retaining the
+    /// existing sorter for the order inside each section.
+    pub(crate) fn set_date_grouping(&self, grouping: Option<DateGrouping>) {
+        let sorter = grouping.as_ref().map(|grouping| {
+            let grouping = grouping.clone();
+            gtk::CustomSorter::new(move |a, b| {
+                let a = as_item(a).entry().modified;
+                let b = as_item(b).entry().modified;
+                grouping.compare(a, b).into()
+            })
+        });
+        self.sort_model.set_section_sorter(sorter.as_ref());
+        self.date_grouping.replace(grouping);
+    }
+
+    /// The current grouping boundaries, if the tab is grouped.
+    pub(crate) fn date_grouping(&self) -> Option<DateGrouping> {
+        self.date_grouping.borrow().clone()
     }
 
     /// Shows another tab's items.

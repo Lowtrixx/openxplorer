@@ -11,7 +11,7 @@ use ox_core::settings::Theme;
 
 use crate::application::AppAction;
 use crate::folder_view::grid::IconSize;
-use crate::folder_view::sorting::{SortColumn, SortDirection};
+use crate::folder_view::sorting::{GroupingMode, SortColumn, SortDirection};
 use crate::icons::Icon;
 use crate::text_size::Step;
 use crate::window::folder_pane::FolderView;
@@ -66,6 +66,11 @@ fn direction_item(label: &str, glyph: Icon, direction: SortDirection) -> MenuEnt
     MenuItem::choice(label, glyph, WindowAction::Direction, direction.as_str()).into()
 }
 
+/// The Sort menu's item for a grouping choice.
+fn grouping_item(label: &str, grouping: GroupingMode) -> MenuEntry {
+    MenuItem::choice(label, Icon::ArrowSort, WindowAction::Grouping, grouping.as_str()).into()
+}
+
 /// The Sort menu: the columns, then the direction. The direction has an
 /// item each, where app.js had one item that flips it.
 pub(super) fn sort_menu() -> Vec<MenuEntry> {
@@ -74,6 +79,10 @@ pub(super) fn sort_menu() -> Vec<MenuEntry> {
         MenuEntry::Divider,
         direction_item("Ascending", Icon::ArrowUp, SortDirection::Ascending),
         direction_item("Descending", Icon::ArrowDown, SortDirection::Descending),
+        MenuEntry::Divider,
+        grouping_item("Group by date modified", GroupingMode::DateModified),
+        grouping_item("No grouping", GroupingMode::None),
+        grouping_item("Automatic (Downloads)", GroupingMode::Automatic),
     ]);
     entries
 }

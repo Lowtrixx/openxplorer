@@ -22,6 +22,7 @@ use crate::folder_view::cells::CellOwners;
 use crate::folder_view::details::DetailsView;
 use crate::folder_view::grid::IconView;
 use crate::folder_view::model::FolderModel;
+use crate::folder_view::sorting::DateGrouping;
 use crate::text_size::TextSize;
 
 use super::empty_page::EmptyState;
@@ -132,6 +133,14 @@ impl FolderPane {
     /// The active tab's filtered, sorted and selectable items.
     pub(super) fn model(&self) -> &FolderModel {
         &self.parts().model
+    }
+
+    /// Sorts rows into date sections and shows their native headings.
+    pub(super) fn set_date_grouping(&self, grouping: Option<DateGrouping>) {
+        let parts = self.parts();
+        parts.model.set_date_grouping(grouping);
+        let grouping = parts.model.date_grouping();
+        parts.details.set_date_grouping(grouping.as_ref());
     }
 
     /// The details view.
