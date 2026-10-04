@@ -115,6 +115,19 @@ pub fn date_text(unix_seconds: Option<u64>) -> String {
         .unwrap_or_else(|| UNKNOWN_DATE.to_owned())
 }
 
+/// Local calendar date followed by a 24-hour `HH:MM` clock, for file-list
+/// columns. Unknown or out-of-range timestamps use the same dash as [`date_text`].
+pub fn short_date_time_text(unix_seconds: Option<u64>) -> String {
+    unix_seconds
+        .and_then(local_time)
+        .and_then(|time| {
+            let date = format_date(&time)?;
+            let clock = time.format("%H:%M").ok()?;
+            Some(format!("{date} {clock}"))
+        })
+        .unwrap_or_else(|| UNKNOWN_DATE.to_owned())
+}
+
 /// Local date and time for the Properties dialog's Created, Modified and
 /// Accessed rows: the [`date_text`] date and the locale's clock time, for
 /// example `09/26/2026, 7:35:35 PM` in the US or `26.09.2026, 19:35:35` in
@@ -304,10 +317,22 @@ mod tests {
     /// parity: VIEW-001
     #[test]
     fn unknown_times_use_the_web_placeholders() {
+        assert_eq!(short_date_time_text(None), "—");
+        assert_eq!(short_date_time_text(Some(u64::MAX)), "—");
         assert_eq!(date_text(None), "—");
         assert_eq!(date_time_text(None), "Not provided");
         assert_eq!(date_text(Some(u64::MAX)), "—");
         assert_eq!(date_time_text(Some(u64::MAX)), "Not provided");
+    }
+
+    #[test]
+    fn compact_timestamp_keeps_the_local_date_and_appends_hours_and_minutes() {
+        let time = DateTime::from_local(2026, 9, 6, 19, 5, 7.0).expect("valid local date");
+        let seconds = u64::try_from(time.to_unix()).unwrap();
+        assert_eq!(
+            short_date_time_text(Some(seconds)),
+            format!("{} 19:05", date_text(Some(seconds)))
+        );
     }
 
     /// Without `setlocale` the process uses the C locale, whose `%x` is

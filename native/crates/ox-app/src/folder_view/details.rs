@@ -45,7 +45,7 @@ fn cell_text(column: SortColumn, item: &FileItem) -> String {
     let entry = item.entry();
     match column {
         SortColumn::Name => entry.name.clone(),
-        SortColumn::Modified => format::date_text(entry.modified),
+        SortColumn::Modified => format::short_date_time_text(entry.modified),
         SortColumn::FolderPath => item.folder_path().text.clone(),
         SortColumn::Type => entry.type_label.clone(),
         SortColumn::Size => match item.folder_size() {
