@@ -8,8 +8,7 @@
 //! `showModal` and ACC-004:
 //!
 //! - The first text field has focus with its text selected; without one,
-//!   the first button (Cancel) has it, so Enter never confirms a
-//!   destructive question by accident.
+//!   the first button has it by default.
 //! - Enter in a text field presses the primary button.
 //! - Escape, the Cancel button and closing the window answer "cancelled".
 //! - An error stays inside the dialog, which stays open for another try
@@ -267,6 +266,19 @@ impl Dialog {
         self.imp().actions.append(&button);
         self.imp().buttons.borrow_mut().push(button.clone());
         button
+    }
+
+    /// Makes `button` the default action and gives it keyboard focus.
+    pub(super) fn focus_button(&self, button: DialogButton) {
+        let button = self
+            .imp()
+            .buttons
+            .borrow()
+            .get(button.0)
+            .cloned()
+            .expect("the dialog has the requested button");
+        self.set_default_widget(Some(&button));
+        button.grab_focus();
     }
 
     /// Shows the dialog, focusing its first text field with the text

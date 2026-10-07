@@ -9,9 +9,9 @@
 //! never becomes a permanent delete). The Trash items run first, then the
 //! others, each as an operation of its own. Shift+Delete, which the Python
 //! app did not have, deletes the selection permanently after its own
-//! confirmation. Both confirm with a red button and Cancel has focus, so
-//! Enter never deletes by accident. In the Recycle Bin, both delete the
-//! selected items for good ([`super::recycle_bin`]).
+//! confirmation. Both show a red confirm button and keep Cancel available;
+//! Enter confirms the deletion. In the Recycle Bin, both delete the selected
+//! items for good ([`super::recycle_bin`]).
 
 use ox_core::ops::{
     permanent_delete_confirmation, plan_delete, DeleteConfirmation, DeleteItem, TransferRequest,
@@ -94,13 +94,14 @@ impl BrowserWindow {
         self.run_and_conclude(&removal(TransferMode::Delete, uris)).await;
     }
 
-    /// Asks `confirmation`'s question with Cancel and its red button;
-    /// true when the user confirmed.
+    /// Asks `confirmation`'s question with Cancel and its red button, with
+    /// the confirmation focused for Enter; true when the user confirmed.
     pub(super) async fn confirm_deletion(&self, confirmation: &DeleteConfirmation) -> bool {
         let dialog = Dialog::new(self, confirmation.title, &confirmation.body);
         dialog.add_cancel_button();
-        dialog.add_button(confirmation.confirm_label, ButtonStyle::Danger);
+        let confirm = dialog.add_button(confirmation.confirm_label, ButtonStyle::Danger);
         dialog.open();
+        dialog.focus_button(confirm);
         let answer = dialog.next_response().await;
         dialog.finish();
         answer.is_some()

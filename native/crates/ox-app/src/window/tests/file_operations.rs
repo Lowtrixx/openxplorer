@@ -268,7 +268,16 @@ fn delete_asks_then_moves_to_the_trash_and_undo_restores() {
         "Résumé.txt\n\nItems go to the Trash and can be restored from there."
     );
     assert_eq!(dialog.button_labels(), ["Cancel", "Move to Trash"]);
-    dialog.press("Move to Trash");
+    let confirm = descendants::<gtk::Button>(&dialog)
+        .into_iter()
+        .find(|button| button.label().as_deref() == Some("Move to Trash"))
+        .expect("the delete confirmation has its confirm button");
+    assert!(confirm.has_focus(), "Enter starts on the confirm button");
+    assert_eq!(
+        gtk::prelude::GtkWindowExt::default_widget(&dialog),
+        Some(confirm.clone().upcast())
+    );
+    dialog.activate_default();
     wait_until("the file to leave the folder", || {
         !fixture.path("Résumé.txt").exists() && !test.names().contains(&"Résumé.txt".to_owned())
     });
