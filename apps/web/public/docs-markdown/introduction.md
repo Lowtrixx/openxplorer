@@ -14,7 +14,7 @@ Previously called Winspace, the project is now published as OpenXplorer. The des
 
 ## Your files. Your network. Your workflow.
 
-Navigate with clickable breadcrumbs, pin folders, type to select a filename, resize columns, and use either a classic or compact context menu. Search opted-in filename indexes, browse ZIP contents read-only, and inspect existing exposed snapshots.
+Navigate with clickable breadcrumbs, pin folders, type to select a filename, resize columns, and use either a classic or compact context menu. Search opted-in filename indexes, work with ZIP archives, and inspect existing exposed snapshots.
 
 The interactive preview runs the same HTML, CSS, icons and controls as the desktop application, with a simulated storage adapter. It cannot access your computer, NAS, browser settings or keyring. On a desktop-sized screen, use the preview controls to open a fictional sample NAS, switch appearance, or replay a pinning walkthrough. The interactive explorer is intentionally not loaded on phones; the documentation and screenshots remain available.
 

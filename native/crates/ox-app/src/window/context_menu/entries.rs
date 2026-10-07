@@ -117,11 +117,13 @@ fn open_group(facts: &ItemFacts) -> Vec<MenuEntry> {
     entries
 }
 
-/// Extract all… and, beyond the Python app, Dolphin's Extract here.
-fn extraction_items(several: bool) -> [MenuEntry; 2] {
+/// Read-only browsing, Extract all… and Extract here for a ZIP.
+fn extraction_items(several: bool) -> [MenuEntry; 3] {
+    let browse = item("Browse archive", Icon::FolderZip, WindowAction::BrowseArchive);
     let extract_all = item("Extract all…", Icon::FolderZip, WindowAction::ExtractAll);
     let extract_here = item("Extract here", Icon::FolderZip, WindowAction::ExtractHere);
     [
+        browse.disabled_when(several).into(),
         extract_all.disabled_when(several).into(),
         extract_here.disabled_when(several).into(),
     ]
@@ -479,10 +481,11 @@ mod tests {
 
         let entries = labels(&item_menu(&facts, MenuStyle::Classic).entries);
 
-        assert_eq!(entries[1], "Extract all…");
-        assert_eq!(entries[2], "Extract here");
-        assert_eq!(entries[3], "Open containing folder in Terminal");
-        assert_eq!(entries[4], "Open with…");
+        assert_eq!(entries[1], "Browse archive");
+        assert_eq!(entries[2], "Extract all…");
+        assert_eq!(entries[3], "Extract here");
+        assert_eq!(entries[4], "Open containing folder in Terminal");
+        assert_eq!(entries[5], "Open with…");
         assert!(entries.contains(&"Delete permanently".to_owned()));
         assert!(entries.contains(&"Sign out of server…".to_owned()));
         assert!(!entries.contains(&"Calculate folder size".to_owned()));

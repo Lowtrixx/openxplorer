@@ -54,12 +54,12 @@ fn archive_browser(test: &TestWindow) -> ArchiveBrowserView {
 
 /// parity: ARC-002, ARC-003, ARC-006
 #[gtk::test]
-fn opening_a_zip_browses_it_and_opens_a_member_as_a_private_copy() {
+fn browse_archive_opens_a_member_as_a_private_copy() {
     let fixture = fixture_with_zip();
     let test = TestWindow::open(&fixture.uri());
     test.select_named("Bundle.zip");
 
-    test.activate("open", None);
+    test.activate("browse-archive", None);
 
     let frame = test.wait_for_dialog("the archive browser");
     assert_eq!(frame.title(), "Bundle.zip — Compressed folder");
@@ -146,6 +146,67 @@ fn extract_refuses_a_bad_name_and_keeps_the_dialog_open() {
     assert_eq!(test.shown_dialog(), Some(frame));
 }
 
+/// parity: ARC-002, ARC-025
+#[gtk::test]
+fn activating_a_zip_extracts_beside_it_without_navigation_or_overwriting() {
+    let fixture = fixture_with_zip();
+    let test = TestWindow::open(&fixture.uri());
+    let original_zip = fs::read(fixture.path("Bundle.zip")).unwrap();
+    for name in ["Bundle", "Bundle (2)"] {
+        test.wait_for_listing("source folder");
+        test.select_named("Bundle.zip");
+        test.activate("open", None);
+        wait_until("extraction to finish", || {
+            fixture.path(&format!("{name}/readme.txt")).exists() && !test.window.is_writing_files()
+        });
+        assert_eq!(test.window.current_uri(), Some(fixture.uri()));
+        assert!(test.shown_dialog().is_none());
+        assert_eq!(
+            fs::read(fixture.path(&format!("{name}/Docs/a.txt"))).unwrap(),
+            b"first"
+        );
+        assert_eq!(
+            fs::read(fixture.path(&format!("{name}/readme.txt"))).unwrap(),
+            b"read me"
+        );
+        if name == "Bundle" {
+            fs::write(fixture.path("Bundle/readme.txt"), b"keep existing edits").unwrap();
+        }
+    }
+    assert_eq!(
+        fs::read(fixture.path("Bundle/readme.txt")).unwrap(),
+        b"keep existing edits"
+    );
+    assert_eq!(fs::read(fixture.path("Bundle.zip")).unwrap(), original_zip);
+}
+
+#[gtk::test]
+fn incoming_zip_extracts_in_its_own_parent_and_keeps_the_current_folder() {
+    let fixture = fixture_with_zip();
+    let test = TestWindow::open(&fixture.uri());
+    let entry = test
+        .window
+        .folder_model()
+        .item(test.position_of("Bundle.zip"))
+        .unwrap()
+        .entry()
+        .clone();
+    let documents = fixture.uri_of("Documents");
+    test.window.navigate(&documents).unwrap();
+    test.wait_for_listing("another folder");
+    test.window.open_incoming(
+        &entry.uri,
+        crate::window::activation::IncomingTab::Active,
+        Ok(entry.clone()),
+    );
+    wait_until("incoming ZIP extracted", || {
+        fixture.path("Bundle/readme.txt").exists() && !test.window.is_writing_files()
+    });
+    assert_eq!(test.window.current_uri(), Some(documents));
+    assert!(!fixture.path("Documents/Bundle").exists());
+    assert!(test.shown_dialog().is_none());
+}
+
 /// parity: ARC-025
 #[gtk::test]
 fn extract_here_uses_the_next_free_name() {
@@ -214,7 +275,7 @@ fn open_in_archive_manager_hands_the_zip_to_the_desktop() {
     let fixture = fixture_with_zip();
     let test = TestWindow::open(&fixture.uri());
     test.select_named("Bundle.zip");
-    test.activate("open", None);
+    test.activate("browse-archive", None);
     let frame = test.wait_for_dialog("the archive browser");
 
     press(&frame, "Open in archive manager");
