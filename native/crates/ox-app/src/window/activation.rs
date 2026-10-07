@@ -29,7 +29,7 @@ pub(super) enum Activation {
     Folder(String),
     /// Open the file in its default application.
     File,
-    /// Browse the ZIP archive in the archive browser (ARC-002).
+    /// Extract the ZIP beside the archive without opening the result (ARC-002).
     Archive,
     /// Refuse, with this message.
     Refused(&'static str),
@@ -90,7 +90,7 @@ impl BrowserWindow {
         match activation_for(entry) {
             Activation::Folder(uri) => self.navigate_or_report(&uri),
             Activation::File => self.open_file(entry),
-            Activation::Archive => self.open_archive(entry),
+            Activation::Archive => self.extract_archive_here(entry),
             Activation::Refused(message) => self.show_message(message),
         }
     }
@@ -115,7 +115,9 @@ impl BrowserWindow {
             async move {
                 match query_entry(&uri).await {
                     Ok(entry) if activation_for(&entry) == Activation::File => window.open_file(&entry),
-                    Ok(entry) if activation_for(&entry) == Activation::Archive => window.open_archive(&entry),
+                    Ok(entry) if activation_for(&entry) == Activation::Archive => {
+                        window.extract_archive_here(&entry);
+                    }
                     Ok(_) => {}
                     Err(error) => window.show_message(&error.to_string()),
                 }
@@ -212,7 +214,7 @@ impl BrowserWindow {
         match activation_for(&entry) {
             Activation::Folder(folder) => self.open_incoming_folder(&folder, tab),
             Activation::File => self.open_file(&entry),
-            Activation::Archive => self.open_archive(&entry),
+            Activation::Archive => self.extract_archive_here(&entry),
             Activation::Refused(message) => self.show_message(message),
         }
     }
@@ -237,7 +239,7 @@ mod tests {
 
     /// parity: ARC-002
     #[test]
-    fn folders_open_in_the_tab_files_in_an_application_and_zips_in_the_browser() {
+    fn folders_open_in_the_tab_files_in_an_application_and_zips_are_extracted() {
         let folder = folder_entry("Projects");
         assert_eq!(activation_for(&folder), Activation::Folder(folder.uri.clone()));
         assert_eq!(activation_for(&file_entry("notes.txt")), Activation::File);

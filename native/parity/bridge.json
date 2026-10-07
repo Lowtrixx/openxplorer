@@ -45,7 +45,7 @@
       "status": "native-tested",
       "note": "The Compressed folder dialog lists the archive through ox-core in the native window, folder by folder.",
       "evidence": [
-        "native/crates/ox-app/src/window/tests/archives.rs::opening_a_zip_browses_it_and_opens_a_member_as_a_private_copy",
+        "native/crates/ox-app/src/window/tests/archives.rs::browse_archive_opens_a_member_as_a_private_copy",
         "native/crates/ox-core/tests/archive_browse.rs::listing_extracts_nothing",
         "native/crates/ox-core/tests/archive_browse.rs::rows_list_folders_first_by_name_ignoring_case",
         "native/crates/ox-core/tests/archive_browse.rs::dangerous_members_are_hidden_and_counted",
@@ -57,7 +57,7 @@
       "status": "native-tested",
       "note": "The Compressed folder dialog copies one member privately through ox-core and opens the copy with its default application.",
       "evidence": [
-        "native/crates/ox-app/src/window/tests/archives.rs::opening_a_zip_browses_it_and_opens_a_member_as_a_private_copy",
+        "native/crates/ox-app/src/window/tests/archives.rs::browse_archive_opens_a_member_as_a_private_copy",
         "native/crates/ox-core/tests/archive_browse.rs::only_the_selected_member_is_copied_read_only",
         "native/crates/ox-core/tests/archive_browse.rs::a_script_is_not_opened",
         "native/crates/ox-core/tests/archive_browse.rs::encrypted_and_oversized_members_are_listed_but_not_opened",

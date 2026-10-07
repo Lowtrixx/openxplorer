@@ -18,7 +18,7 @@ Restart Brave after changing handlers. Test Show in folder checks FileManager1, 
 
 In Settings → Default file explorer, click Use OpenXplorer for ZIPs. This is an explicit, per-user change to ZIP associations, with a Restore ZIP handler button. It does not change PDF, video, or document defaults. Installation never changes these associations.
 
-A ZIP opens in the built-in ZIP browser; this setting does not automatically extract it. You can instead leave ZIPs assigned to an external archive manager.
+In the native app, opening a ZIP extracts it into a new folder beside the archive and leaves you in the current folder. You can instead leave ZIPs assigned to an external archive manager.
 
 ```sh
 xdg-mime query default inode/directory

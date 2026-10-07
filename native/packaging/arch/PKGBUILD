@@ -16,7 +16,7 @@ else
   pkgdesc='Preview of the native OpenXplorer file manager'
 fi
 pkgver=2.0.0
-pkgrel=5
+pkgrel=6
 arch=('x86_64' 'aarch64')
 url='https://openxplorer.app'
 # The program is AGPL-3.0-only; the Rust crates compiled into it are MIT,

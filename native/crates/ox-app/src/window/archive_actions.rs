@@ -4,7 +4,7 @@
 //!
 //! Ports `archiveDialog`, the `extractDialog` flow after its dialog and
 //! the `isZipEntry` item of `entryMenu` in `desktop/ui/app.js`: opening a
-//! ZIP browses it (ARC-002), Extract all… asks where (ARC-009) and runs
+//! ZIP extracts beside it, Browse archive opens it read-only, and Extract all… asks where (ARC-009) and runs
 //! the extraction with the operation panel and Cancel (ARC-011), then
 //! shows the result in the tab that asked, or a new tab. Extract here
 //! (ARC-025) and Compress to ZIP file (ARC-023) come from the Dolphin
@@ -79,6 +79,12 @@ impl BrowserWindow {
             .set(panel)
             .expect("installed once");
         self.add_action_entries([
+            plain_action(WindowAction::BrowseArchive, |window| {
+                let selected = window.folder_pane().model().selected_items();
+                if let [item] = selected.as_slice() {
+                    window.open_archive(item.entry());
+                }
+            }),
             plain_action(WindowAction::ExtractAll, |window| {
                 if let Some(archive) = window.selected_archive() {
                     window.open_extract_dialog(&archive);
@@ -97,6 +103,7 @@ impl BrowserWindow {
             .current_uri()
             .is_some_and(|uri| self.is_writable_folder(&uri));
         let selected = self.folder_pane().model().summary().count;
+        self.set_action_enabled(WindowAction::BrowseArchive, has_archive);
         self.set_action_enabled(WindowAction::ExtractAll, is_idle && has_archive);
         self.set_action_enabled(
             WindowAction::ExtractHere,
@@ -296,6 +303,26 @@ impl BrowserWindow {
         let (Some(archive), Some(folder)) = (self.selected_archive(), self.current_uri()) else {
             return;
         };
+        self.extract_archive_into_new_folder(archive, folder);
+    }
+
+    /// ZIP activation extracts beside the archive without opening the result.
+    pub(super) fn extract_archive_here(&self, entry: &Entry) {
+        let Some(archive) = archive_target(entry) else {
+            return;
+        };
+        let Some(folder) = parent_location(&archive.uri) else {
+            self.show_message("The archive has no writable parent folder.");
+            return;
+        };
+        self.extract_archive_into_new_folder(archive, folder);
+    }
+
+    fn extract_archive_into_new_folder(&self, archive: ArchiveTarget, folder: String) {
+        if !self.is_writable_folder(&folder) {
+            self.show_message("Cannot extract here. Use Extract all… to choose a writable folder.");
+            return;
+        }
         if !self.may_start_archive_operation() {
             return;
         }

@@ -19,7 +19,7 @@
         "id": "what-it-does",
         "title": "Your files. Your network. Your workflow.",
         "paragraphs": [
-          "Navigate with clickable breadcrumbs, pin folders, type to select a filename, resize columns, and use either a classic or compact context menu. Search opted-in filename indexes, browse ZIP contents read-only, and inspect existing exposed snapshots.",
+          "Navigate with clickable breadcrumbs, pin folders, type to select a filename, resize columns, and use either a classic or compact context menu. Search opted-in filename indexes, work with ZIP archives, and inspect existing exposed snapshots.",
           "The interactive preview runs the same HTML, CSS, icons and controls as the desktop application, with a simulated storage adapter. It cannot access your computer, NAS, browser settings or keyring. On a desktop-sized screen, use the preview controls to open a fictional sample NAS, switch appearance, or replay a pinning walkthrough. The interactive explorer is intentionally not loaded on phones; the documentation and screenshots remain available."
         ],
         "items": [
@@ -264,7 +264,7 @@
         "title": "Open ZIP downloads in OpenXplorer",
         "paragraphs": [
           "In Settings → Default file explorer, click Use OpenXplorer for ZIPs. This is an explicit, per-user change to ZIP associations, with a Restore ZIP handler button. It does not change PDF, video, or document defaults. Installation never changes these associations.",
-          "A ZIP opens in the built-in ZIP browser; this setting does not automatically extract it. You can instead leave ZIPs assigned to an external archive manager."
+          "In the native app, opening a ZIP extracts it into a new folder beside the archive and leaves you in the current folder. You can instead leave ZIPs assigned to an external archive manager."
         ],
         "code": "xdg-mime query default inode/directory\nxdg-mime query default application/zip\nopenxplorer --diagnose",
         "codeLanguage": "sh"
@@ -392,17 +392,17 @@
       },
       {
         "id": "archives",
-        "title": "Browse a ZIP, without extracting everything",
+        "title": "ZIP contents and supported formats",
         "paragraphs": [
-          "ZIP browsing is read-only. Listing reads archive metadata; opening a selected member decompresses that member into a private temporary copy. Archive modifications, encrypted archives and unsupported formats require an external application."
+          "Double-click extracts a ZIP without changing the archive. To inspect its contents first, right-click and choose Browse archive. Browsing is read-only; opening a member uses a private temporary copy. Password-protected ZIPs, archive modifications and unsupported formats need an external archive manager."
         ]
       },
       {
         "id": "zip-extraction",
         "title": "Extract ZIP files",
         "paragraphs": [
-          "Right-click a ZIP and choose Extract all… in either context-menu style. Choose an existing destination and a new output-folder name. The ZIP stays unchanged, existing files are never overwritten, and Cancel is available in the transfer panel.",
-          "Local and already connected SMB locations are supported by the implementation; live SMB extraction still needs target-machine validation. Sign into the relevant shares first. Password-protected ZIPs, unsupported methods, and files exceeding the built-in safety limits need an external archive manager. Double-click continues to browse without extracting the entire ZIP."
+          "Double-click a ZIP in the native app to extract it into a new folder beside the archive. The destination is not opened automatically. If its name is already taken, a different output-folder name is used. For a destination of your choice, right-click and choose Extract all…. The ZIP stays unchanged, existing files are never overwritten, and Cancel is available in the transfer panel.",
+          "Local and already connected SMB locations are supported by the implementation; live SMB extraction still needs target-machine validation. Sign into the relevant shares first. Password-protected ZIPs, unsupported methods, and files exceeding the built-in safety limits need an external archive manager."
         ]
       },
       {

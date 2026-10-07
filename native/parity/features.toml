@@ -12127,7 +12127,7 @@ python_tests = [
 bridge = ["activateItem"]
 dolphin = "Dolphin browses archives via kio-extras (zip:/)"
 native = "done"
-native_note = "native/crates/ox-app/src/window/activation.rs (folders_open_in_the_tab_files_in_an_application_and_zips_in_the_browser); native/crates/ox-app/src/window/tests/archives.rs (opening_a_zip_browses_it_and_opens_a_member_as_a_private_copy); the core rule: native/crates/ox-core/tests/integration_opening/activation.rs. Double-click, Enter, a typed address and a command-line argument open a ZIP in the archive browser. Earlier evidence: native/crates/ox-core/tests/integration_opening/activation.rs (a_folder_named_like_a_zip_opens_as_a_folder, a_zip_by_content_type_is_browsed, a_zip_by_name_in_any_case_is_browsed)."
+native_note = "native/crates/ox-app/src/window/activation.rs (folders_open_in_the_tab_files_in_an_application_and_zips_are_extracted); native/crates/ox-app/src/window/tests/archives.rs (browse_archive_opens_a_member_as_a_private_copy); the core rule: native/crates/ox-core/tests/integration_opening/activation.rs. In this fork, double-click, Enter, a typed address and an incoming ZIP request extract into a unique sibling folder without opening it; activating_a_zip_extracts_beside_it_without_navigation_or_overwriting and incoming_zip_extracts_in_its_own_parent_and_keeps_the_current_folder cover activation. Browse archive in the context menu retains the read-only browser. Earlier evidence: native/crates/ox-core/tests/integration_opening/activation.rs (a_folder_named_like_a_zip_opens_as_a_folder, a_zip_by_content_type_is_browsed, a_zip_by_name_in_any_case_is_browsed)."
 
 [[feature]]
 id = "ARC-003"
@@ -12160,7 +12160,7 @@ python_tests = [
 bridge = ["activateItem", "archiveList", "archiveOpenMember", "open"]
 dolphin = "Browse archives as folders (kio-extras); Browse archives as folders (KIO zip:/)"
 native = "done"
-native_note = "native/crates/ox-app/src/window/tests/archives.rs (opening_a_zip_browses_it_and_opens_a_member_as_a_private_copy); native/crates/ox-app/src/archive_view/browser.rs (hidden_members_and_truncation_are_announced, up_goes_one_folder_higher): the title and message, Up and the path, the help text, rows with icon, name and size or 'Folder', folders by double-click or Enter, supported files as copies with their messages, the archive-manager hint, the empty, hidden and truncated notices, stale listings dropped, and Extract all…, Open in archive manager and Close."
+native_note = "native/crates/ox-app/src/window/tests/archives.rs (browse_archive_opens_a_member_as_a_private_copy); native/crates/ox-app/src/archive_view/browser.rs (hidden_members_and_truncation_are_announced, up_goes_one_folder_higher): the title and message, Up and the path, the help text, rows with icon, name and size or 'Folder', folders by double-click or Enter, supported files as copies with their messages, the archive-manager hint, the empty, hidden and truncated notices, stale listings dropped, and Extract all…, Open in archive manager and Close."
 
 [[feature]]
 id = "ARC-004"
@@ -12241,7 +12241,7 @@ python_tests = [
 ]
 bridge = ["archiveOpenMember"]
 native = "done"
-native_note = "Core: native/crates/ox-core/tests/archive_browse.rs and archive_gio.rs; native/crates/ox-app/src/window/tests/archives.rs (opening_a_zip_browses_it_and_opens_a_member_as_a_private_copy): the copy is made in $XDG_RUNTIME_DIR/winspace-archive-previews and opened with its default application, and the browser says 'Opened a temporary copy. Changes are not saved back to the ZIP.' as app.js does. Earlier evidence: native/crates/ox-core/tests/archive_browse.rs (only_the_selected_member_is_copied_read_only, a_script_is_not_opened, encrypted_and_oversized_members_are_listed_but_not_opened, a_duplicated_member_is_not_opened); native/crates/ox-core/tests/archive_gio.rs (previews_go_to_the_private_runtime_directory)."
+native_note = "Core: native/crates/ox-core/tests/archive_browse.rs and archive_gio.rs; native/crates/ox-app/src/window/tests/archives.rs (browse_archive_opens_a_member_as_a_private_copy): the copy is made in $XDG_RUNTIME_DIR/winspace-archive-previews and opened with its default application, and the browser says 'Opened a temporary copy. Changes are not saved back to the ZIP.' as app.js does. Earlier evidence: native/crates/ox-core/tests/archive_browse.rs (only_the_selected_member_is_copied_read_only, a_script_is_not_opened, encrypted_and_oversized_members_are_listed_but_not_opened, a_duplicated_member_is_not_opened); native/crates/ox-core/tests/archive_gio.rs (previews_go_to_the_private_runtime_directory)."
 
 [[feature]]
 id = "ARC-007"

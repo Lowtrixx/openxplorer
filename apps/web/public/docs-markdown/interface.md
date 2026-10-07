@@ -36,15 +36,15 @@ Calculate folder size totals accessible logical file sizes on a worker with prog
 
 These are not ZFS dataset used/referenced values, compressed allocation measurements or snapshot-exclusive block counts.
 
-## Browse a ZIP, without extracting everything
+## ZIP contents and supported formats
 
-ZIP browsing is read-only. Listing reads archive metadata; opening a selected member decompresses that member into a private temporary copy. Archive modifications, encrypted archives and unsupported formats require an external application.
+Double-click extracts a ZIP without changing the archive. To inspect its contents first, right-click and choose Browse archive. Browsing is read-only; opening a member uses a private temporary copy. Password-protected ZIPs, archive modifications and unsupported formats need an external archive manager.
 
 ## Extract ZIP files
 
-Right-click a ZIP and choose Extract all… in either context-menu style. Choose an existing destination and a new output-folder name. The ZIP stays unchanged, existing files are never overwritten, and Cancel is available in the transfer panel.
+Double-click a ZIP in the native app to extract it into a new folder beside the archive. The destination is not opened automatically. If its name is already taken, a different output-folder name is used. For a destination of your choice, right-click and choose Extract all…. The ZIP stays unchanged, existing files are never overwritten, and Cancel is available in the transfer panel.
 
-Local and already connected SMB locations are supported by the implementation; live SMB extraction still needs target-machine validation. Sign into the relevant shares first. Password-protected ZIPs, unsupported methods, and files exceeding the built-in safety limits need an external archive manager. Double-click continues to browse without extracting the entire ZIP.
+Local and already connected SMB locations are supported by the implementation; live SMB extraction still needs target-machine validation. Sign into the relevant shares first. Password-protected ZIPs, unsupported methods, and files exceeding the built-in safety limits need an external archive manager.
 
 ## Make text easier to read
 

@@ -223,6 +223,8 @@ pub(crate) enum WindowAction {
     /// Extract all…: the selected ZIP into a new folder of the user's
     /// choice.
     ExtractAll,
+    /// Browse a ZIP without extracting the entire archive.
+    BrowseArchive,
     /// Extract here: the selected ZIP into a new folder beside it.
     ExtractHere,
     /// Compress to ZIP file: the selection into a new ZIP beside it.
@@ -349,6 +351,7 @@ impl WindowAction {
             WindowAction::BrowseSnapshot => "browse-snapshot",
             WindowAction::RestoreVersion => "restore-version",
             WindowAction::ExtractAll => "extract-all",
+            WindowAction::BrowseArchive => "browse-archive",
             WindowAction::ExtractHere => "extract-here",
             WindowAction::CompressToZip => "compress-to-zip",
             WindowAction::OpenWith => "open-with",
